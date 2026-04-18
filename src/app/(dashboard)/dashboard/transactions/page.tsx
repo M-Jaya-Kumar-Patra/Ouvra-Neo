@@ -1,37 +1,19 @@
-import { auth } from "@/auth";
-import { connectToDatabase } from "@/lib/mongodb";
-import Transaction from "@/lib/models/Transaction";
-import { RecentTransactions } from "@/components/dashboard/RecentTransactions"; // We can reuse the UI component!
+import { Suspense } from "react";
 import { TransactionFilters } from "@/components/transactions/TransactionFilters";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
+import { TransactionTableWrapper } from "@/components/transactions/TransactionTableWrapper";
 
 export default async function FullTransactionsPage({
   searchParams,
 }: {
   searchParams: Promise<{ query?: string; type?: string; category?: string }>;
 }) {
-  const session = await auth();
-  const { query = "", type = "all", category = "all" } = await searchParams;
-
-  await connectToDatabase();
-
-  
-const filter: Record<string, unknown> = { userId: session?.user?.id };
-
-if (query) {
-  filter.description = { $regex: query, $options: "i" };
-}
-if (type !== "all") {
-  filter.type = type;
-}
-if (category !== "all") {
-  filter.category = category;
-}
-
-  const allTransactions = await Transaction.find(filter)
-    .sort({ date: -1 })
-    .lean();
+  // Use 'await' to satisfy the Next.js 16 dynamic requirement
+  const params = await searchParams;
+  const query = params.query || "";
+  const type = params.type || "all";
+  const category = params.category || "all";
 
   return (
     <div className="space-y-8 p-6">
@@ -45,11 +27,12 @@ if (category !== "all") {
         </Button>
       </div>
 
-      {/* 2. New Filters Component */}
       <TransactionFilters />
 
-      {/* 3. Reuse your smooth RecentTransactions component, but passing the full list */}
-      <RecentTransactions transactions={allTransactions} />
+      {/* Wrapping in Suspense solves the "Uncached data" error */}
+      <Suspense fallback={<div className="text-zinc-500 animate-pulse">Loading Ouvra Vaults...</div>}>
+        <TransactionTableWrapper query={query} type={type} category={category} />
+      </Suspense>
     </div>
   );
 }
