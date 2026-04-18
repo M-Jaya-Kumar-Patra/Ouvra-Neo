@@ -8,16 +8,16 @@ export function QRScannerModal({ onScanSuccess }: { onScanSuccess: (upiId: strin
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    let scanner: Html5QrcodeScanner | null = null;
+
     if (isOpen) {
-      const scanner = new Html5QrcodeScanner(
+      scanner = new Html5QrcodeScanner(
         "reader", 
         { fps: 10, qrbox: { width: 250, height: 250 } },
         /* verbose= */ false
       );
 
       scanner.render((decodedText) => {
-        // UPI QR codes look like: upi://pay?pa=id@bank...
-        // We need to extract the 'pa' (Address) part
         if (decodedText.includes("upi://pay")) {
           const urlParams = new URLSearchParams(decodedText.split('?')[1]);
           const upiId = urlParams.get('pa');
@@ -25,16 +25,24 @@ export function QRScannerModal({ onScanSuccess }: { onScanSuccess: (upiId: strin
           if (upiId) {
             onScanSuccess(upiId);
             setIsOpen(false);
-            scanner.clear();
+            // We handle clear here as well
+            if (scanner) {
+              scanner.clear().catch(err => console.error("Failed to clear", err));
+            }
           }
         }
       }, (error) => {
         // Silent error for scanning frames
       });
 
-      return () => scanner.clear();
+      // WRAP IN SYNC FUNCTION TO FIX TS ERROR
+      return () => {
+        if (scanner) {
+          scanner.clear().catch(err => console.error("Failed to clear", err));
+        }
+      };
     }
-  }, [isOpen]);
+  }, [isOpen, onScanSuccess]);
 
   return (
     <>
