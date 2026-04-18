@@ -59,11 +59,14 @@ const hasActiveVault = (userDoc?.vaults as IVault[])?.some((v) => v.roundUpEnabl
 
   // 2. Create Transaction
   await Transaction.create({
-    userId,
-    ...validated,
-    category: validated.category || "General",
-    roundUpAmount: roundUpAmount, 
-  });
+  userId,
+  creatorId: userId, // Fix: satisfying the required creatorId field
+  ...validated,
+  category: validated.category || "General",
+  roundUpAmount: roundUpAmount,
+  // Ensure the type is correctly set for the new enum
+  type: validated.type === "expense" ? "expense" : "income" 
+});
 
   // 4. Atomic Balance Update
   // We use .toFixed(2) then Number() to kill floating point math bugs
@@ -89,20 +92,23 @@ const hasActiveVault = (userDoc?.vaults as IVault[])?.some((v) => v.roundUpEnabl
 
 
 export async function createPendingTransaction(data: {
-  userId: string;
+  userId: string; // The person who owes
   amount: number;
   note: string;
   description: string;
+  creatorId: string; // Add this to your function parameters
 }) {
   try {
     await connectToDatabase();
     
     const newTx = await Transaction.create({
       userId: data.userId,
+      creatorId: data.creatorId, // Fix: Link it to the person who created the split
       amount: data.amount,
       paymentNote: data.note,
       description: data.description,
       status: "pending",
+      type: "owed_to_me", // This type matches your new enum
     });
 
     return JSON.parse(JSON.stringify(newTx));

@@ -10,6 +10,8 @@ import { calculateTrend } from '@/lib/utils/finance';
 import { getWalletSummary } from "@/lib/actions/split.actions";
 import Link from "next/link";
 
+import { Types } from "mongoose";
+
 // Components
 import { AddTransaction } from '@/components/dashboard/AddTransaction';
 import { AIInsightCard } from "@/components/dashboard/AIInsightCard";
@@ -46,7 +48,7 @@ type TransactionDoc = {
   description: string;
   category: string;
   amount: number;
-  type: 'income' | 'expense';
+  type: 'income' | 'expense' | 'owed_to_me'; // Add 'owed_to_me' here
   date: string | Date;
   roundUpAmount: number;
 };
@@ -89,11 +91,22 @@ async function DashboardContent({
 
   await connectToDatabase();
 
-  const [dbUser, allTransactions, splitSummary] = await Promise.all([
+  const userObjectId = new Types.ObjectId(session.user.id);
+
+// Inside DashboardContent
+const [dbUser, allTransactions, splitSummary] = await Promise.all([
   User.findById(session.user.id).lean(),
-  Transaction.find({ userId: session.user.id }).sort({ date: -1 }).limit(50).lean(),
-  getWalletSummary(session.user.id) // This returns { totalLent, totalOwed }
+  Transaction.find({ 
+    userId: session.user.id,
+    category: { $ne: "Debt Tracking" } // Hide individual friend shares from the main feed
+  })
+  .sort({ date: -1 })
+  .limit(10)
+  .lean(),
+  getWalletSummary(session.user.id)
 ]);
+
+
   const firstName = (session.user?.fullName   || "User").split(" ")[0];
 
 
@@ -102,9 +115,9 @@ async function DashboardContent({
   const filteredTransactions = (allTransactions as unknown as TransactionDoc[]).filter((t) => {
      const s = query.toLowerCase();
     return (
-      t.description?.toLowerCase().includes(s) || 
-      t.category?.toLowerCase().includes(s)
-    );
+  (t.description || "").toLowerCase().includes(s) || 
+  (t.category || "").toLowerCase().includes(s)
+);
   }).slice(0, 10);
 
   // Logic for charts

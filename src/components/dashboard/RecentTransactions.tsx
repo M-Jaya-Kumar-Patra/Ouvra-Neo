@@ -7,7 +7,7 @@
     _id: string;
     description: string;
     amount: number;
-    type: 'income' | 'expense';
+    type: 'income' | 'expense'| 'owed_to_me';
     category: string;
     date: Date | string;
     roundUpAmount: number;
@@ -35,25 +35,28 @@
 
         {/* This is the key: flex-1 and overflow-y-auto */}
         <CardContent className="flex-1 overflow-y-auto scrollbar-hide">
-          <div className="space-y-1">
-            {transactions.length === 0 ? (
-              <p className="text-zinc-500 text-sm text-center py-8">No transactions found.</p>
-            ) : (
-              transactions.map((t) => (
-                <div key={t._id.toString()} className="group flex items-center justify-between px-4 py-3 rounded-xl transition-all hover:bg-zinc-800/50">
-                  <div className="flex flex-col">
-                    <span className="font-medium text-zinc-100 group-hover:text-white transition-colors">
-                      {t.description}
-                    </span>
-                    <span className="text-xs text-zinc-500">{t.category}</span>
-                  </div>
+        <div className="space-y-1">
+          {transactions.length === 0 ? (
+            <p className="text-zinc-500 text-sm text-center py-8">No transactions found.</p>
+          ) : (
+            transactions.map((t) => (
+              <div key={t._id.toString()} className="group flex items-center justify-between px-4 py-3 rounded-xl transition-all hover:bg-zinc-800/50">
+                <div className="flex flex-col">
+                  <span className="font-medium text-zinc-100 group-hover:text-white transition-colors">
+                    {t.description}
+                  </span>
+                  <span className="text-xs text-zinc-500">
+                    {t.category} {t.type === 'owed_to_me' && "• Split"} 
+                  </span>
+                </div>
 
-                  <div className="text-right">
-                    <div className={`font-semibold transition-transform duration-300 group-hover:scale-105 ${
-                      t.type === 'income' ? 'text-emerald-500' : 'text-white'
-                    }`}>
-                      {t.type === 'income' ? '+' : '-'} ₹{t.amount.toFixed(2)}
-                    </div>
+                <div className="text-right">
+                  <div className={`font-semibold transition-transform duration-300 group-hover:scale-105 ${
+                    t.type === 'income' ? 'text-emerald-500' : 
+                    t.type === 'owed_to_me' ? 'text-blue-400' : 'text-white'
+                  }`}>
+                    {t.type === 'income' ? '+' : t.type === 'owed_to_me' ? '→' : '-'} ₹{t.amount.toFixed(2)}
+                  </div>
                     
                     {t.roundUpAmount > 0 && (
                       <div className="flex justify-end">
