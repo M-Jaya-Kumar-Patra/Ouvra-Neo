@@ -1,16 +1,16 @@
-
+// app/dashboard/transactions/page.tsx
 import { Suspense } from "react";
 import { TransactionFilters } from "@/components/transactions/TransactionFilters";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { TransactionList } from "@/components/transactions/TransactionList";
 
-export default async function FullTransactionsPage({ searchParams }: { searchParams: Promise<any> }) {
-  // Awaiting searchParams is a dynamic API call in Next.js 16.
-  // By wrapping the component that USES these params in Suspense, 
-  // we allow the rest of the page to be static.
-  const params = await searchParams; 
 
+export default function FullTransactionsPage({ 
+  searchParams 
+}: { 
+  searchParams: Promise<{ query?: string; type?: string; category?: string }> 
+}) {
   return (
     <div className="space-y-8 p-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -23,15 +23,13 @@ export default async function FullTransactionsPage({ searchParams }: { searchPar
         </Button>
       </div>
 
-      <TransactionFilters />
+      <Suspense fallback={<div className="h-10 w-full bg-zinc-900 animate-pulse rounded-lg" />}>
+  <TransactionFilters />
+</Suspense>
 
-      {/* CRITICAL: The Suspense boundary MUST wrap the component performing the data fetch */}
+      {/* Pass the PROMISE to the component */}
       <Suspense fallback={<div className="h-64 w-full bg-zinc-900/50 animate-pulse rounded-2xl border border-zinc-800" />}>
-        <TransactionList 
-          query={params.query || ""} 
-          type={params.type || "all"} 
-          category={params.category || "all"} 
-        />
+        <TransactionList searchParams={searchParams} />
       </Suspense>
     </div>
   );
