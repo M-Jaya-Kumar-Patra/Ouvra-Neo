@@ -13,6 +13,7 @@ import {
   ArrowDownLeft,
   LogOut 
 } from 'lucide-react';
+import Image from 'next/image';
 
 const navItems = [
   { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
@@ -43,8 +44,17 @@ export default function Sidebar({
     <aside className={cn("flex flex-col py-6 border-r border-zinc-800 bg-black/50", className)}>
       {/* Brand Logo */}
       <div className="px-6 mb-10 flex items-center gap-2">
-        <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]">O</div>
-        <span className="text-xl font-bold tracking-tight italic bg-gradient-to-r from-white to-zinc-500 bg-clip-text text-transparent">OUVRA NEO</span>
+        <div className="relative h-14 w-14 overflow-hidden rounded-lg">
+    <Image 
+      src="/logo.png" // Ensure your logo is named logo.png in the /public folder
+      alt="Ouvra Neo Logo"
+      fill
+      className="object-contain"
+      priority // Ensures the logo loads immediately
+    />
+  </div>
+  
+  <span className="text-2xl font-bold tracking-tight italic bg-gradient-to-r from-white to-zinc-500 bg-clip-text text-transparent">OUVRA NEO</span>
       </div>
 
       {/* Navigation Links */}
