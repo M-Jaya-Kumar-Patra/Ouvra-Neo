@@ -2,16 +2,16 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { signOut } from "next-auth/react"; // 1. Import signOut
+import { signOut } from "next-auth/react"; 
 import { 
   LayoutDashboard, 
   Wallet, 
   Sparkles, 
   Receipt, 
-  Settings, 
+  UserCircle, // Changed from Settings for better Profile UX
   ArrowUpRight,
   ArrowDownLeft,
-  LogOut // 2. Import LogOut icon
+  LogOut 
 } from 'lucide-react';
 
 const navItems = [
@@ -19,7 +19,7 @@ const navItems = [
   { name: 'Smart Vaults', href: '/vaults', icon: Wallet },
   { name: 'AI Co-Pilot', href: '/insights', icon: Sparkles },
   { name: 'Bill Splitter', href: '/split', icon: Receipt },
-  { name: 'Settings', href: '#', icon: Settings },
+  { name: 'Account', href: '/profile', icon: UserCircle }, // Updated to link to your new Profile page
 ];
 
 export default function Sidebar({ 
@@ -34,7 +34,6 @@ export default function Sidebar({
   const pathname = usePathname();
   const isPositive = trend >= 0;
 
-  // Updated to INR for consistency with your Ouvra Neo dashboard
   const formattedBalance = new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
@@ -42,11 +41,13 @@ export default function Sidebar({
 
   return (
     <aside className={cn("flex flex-col py-6 border-r border-zinc-800 bg-black/50", className)}>
+      {/* Brand Logo */}
       <div className="px-6 mb-10 flex items-center gap-2">
         <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]">O</div>
         <span className="text-xl font-bold tracking-tight italic bg-gradient-to-r from-white to-zinc-500 bg-clip-text text-transparent">OUVRA NEO</span>
       </div>
 
+      {/* Navigation Links */}
       <nav className="flex-1 px-4 space-y-2">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
@@ -83,7 +84,7 @@ export default function Sidebar({
           </div>
         </div>
 
-        {/* 3. Logout Button */}
+        {/* Logout Button */}
         <button 
           onClick={() => signOut({ callbackUrl: '/login' })}
           className="w-full flex items-center gap-3 px-3 py-2 text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-md transition-all duration-200 group"
