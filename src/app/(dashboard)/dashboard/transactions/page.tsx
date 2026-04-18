@@ -1,6 +1,4 @@
 
-export const dynamic = "force-dynamic";
-
 import { Suspense } from "react";
 import { TransactionFilters } from "@/components/transactions/TransactionFilters";
 import { Button } from "@/components/ui/button";
