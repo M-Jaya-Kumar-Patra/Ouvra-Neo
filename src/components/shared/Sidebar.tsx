@@ -1,0 +1,97 @@
+"use client";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { signOut } from "next-auth/react"; // 1. Import signOut
+import { 
+  LayoutDashboard, 
+  Wallet, 
+  Sparkles, 
+  Receipt, 
+  Settings, 
+  ArrowUpRight,
+  ArrowDownLeft,
+  LogOut // 2. Import LogOut icon
+} from 'lucide-react';
+
+const navItems = [
+  { name: 'Overview', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Smart Vaults', href: '/vaults', icon: Wallet },
+  { name: 'AI Co-Pilot', href: '/insights', icon: Sparkles },
+  { name: 'Bill Splitter', href: '/split', icon: Receipt },
+  { name: 'Settings', href: '#', icon: Settings },
+];
+
+export default function Sidebar({ 
+  className, 
+  balance = 0, 
+  trend = 0 
+}: { 
+  className?: string;
+  balance?: number;
+  trend?: number;
+}) {
+  const pathname = usePathname();
+  const isPositive = trend >= 0;
+
+  // Updated to INR for consistency with your Ouvra Neo dashboard
+  const formattedBalance = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+  }).format(balance);
+
+  return (
+    <aside className={cn("flex flex-col py-6 border-r border-zinc-800 bg-black/50", className)}>
+      <div className="px-6 mb-10 flex items-center gap-2">
+        <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow-[0_0_15px_rgba(37,99,235,0.4)]">O</div>
+        <span className="text-xl font-bold tracking-tight italic bg-gradient-to-r from-white to-zinc-500 bg-clip-text text-transparent">OUVRA NEO</span>
+      </div>
+
+      <nav className="flex-1 px-4 space-y-2">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 group",
+                isActive 
+                  ? "bg-zinc-800 text-white shadow-sm" 
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+              )}
+            >
+              <item.icon className={cn("h-5 w-5", isActive ? "text-blue-500" : "group-hover:text-blue-400")} />
+              <span className="font-medium">{item.name}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Footer Section */}
+      <div className="px-4 mt-auto space-y-4">
+        {/* Dynamic Portfolio Card */}
+        <div className="p-4 rounded-xl bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 border border-zinc-700/30 backdrop-blur-sm">
+          <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1 font-semibold">Total Portfolio</p>
+          <h4 className="text-lg font-bold text-white truncate">{formattedBalance}</h4>
+          <div className={cn(
+            "flex items-center gap-1 text-xs mt-1 font-medium",
+            isPositive ? "text-emerald-400" : "text-rose-400"
+          )}>
+            {isPositive ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownLeft className="h-3 w-3" />}
+            <span>{isPositive ? '+' : ''}{trend.toFixed(1)}% this month</span>
+          </div>
+        </div>
+
+        {/* 3. Logout Button */}
+        <button 
+          onClick={() => signOut({ callbackUrl: '/login' })}
+          className="w-full flex items-center gap-3 px-3 py-2 text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-md transition-all duration-200 group"
+        >
+          <LogOut className="h-5 w-5 group-hover:rotate-12 transition-transform" />
+          <span className="font-medium">Logout</span>
+        </button>
+      </div>
+    </aside>
+  );
+}
