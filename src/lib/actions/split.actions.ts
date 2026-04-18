@@ -172,8 +172,9 @@ export async function getWalletSummary(userId: string) {
 
     // 2. Calculate Owed: Sum of all pending dues where YOU are a participant
     // Using the getUserDues logic we fixed earlier
-    const myDues = await getUserDues(userId);
-    const totalOwed = myDues.reduce((acc, curr) => acc + curr.amount, 0);
+    const myDues = await getUserDues(userId)
+const totalOwed = myDues.reduce((acc: number, curr: { amount: number }) => acc + curr.amount, 0);
+
 
     return { totalLent, totalOwed };
   } catch (error) {
