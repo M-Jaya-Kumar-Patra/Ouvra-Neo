@@ -54,7 +54,7 @@ async function DynamicExportMenu({
   const session = await auth();
   const params = await searchParams;
   
-  await connectToDatabase();
+  await connectToDatabase()
   
   const filter: any = { userId: session?.user?.id };
   if (params.type && params.type !== "all") filter.type = params.type;
