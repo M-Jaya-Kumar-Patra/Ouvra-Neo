@@ -36,14 +36,24 @@ export async function createVault(formData: FormData) {
     );
   }
 
-  await User.findByIdAndUpdate(session.user.id, {
+  // Inside createVault function
+await User.findByIdAndUpdate(
+  session.user.id, 
+  {
     $push: {
       vaults: {
         ...validated,
         currentBalance: 0,
+        history: [], // Also initialize history to prevent future errors
       },
     },
-  });
+  },
+  { 
+    new: true, 
+    upsert: true, // This creates the path if it's missing
+    setDefaultsOnInsert: true 
+  }
+);
 
   revalidatePath("/vaults");
   revalidatePath("/dashboard");
