@@ -3,6 +3,7 @@ import { LogOut, ShieldCheck, Mail, Globe, Lock, ChevronRight } from "lucide-rea
 import { Button } from "@/components/ui/button";
 import { SignOutButton } from "@/components/shared/SignOutButton"; // Recommended: Move logic to a client component
 import Link from "next/link";
+import { DeleteAccountButton } from "../shared/DeleteAccountButton";
 
 export async function ProfileContent() {
   const session = await auth();
@@ -77,15 +78,18 @@ export async function ProfileContent() {
         </div>
 
         {/* Action Card */}
-        <div className="p-6 bg-rose-500/5 border border-rose-500/10 rounded-3xl flex flex-col justify-between">
-          <div className="space-y-1">
-            <h3 className="text-xs font-black text-rose-500 uppercase tracking-[0.2em]">Danger Zone</h3>
-            <p className="text-[11px] text-zinc-500">Sign out of your current session on this device.</p>
-          </div>
-          
-          {/* Note: In NextAuth, signOut works best via a client-side button component */}
-          <SignOutButton />
-        </div>
+        {/* Action Card */}
+<div className="p-6 bg-rose-500/5 border border-rose-500/10 rounded-3xl space-y-4">
+  <div className="space-y-1">
+    <h3 className="text-xs font-black text-rose-500 uppercase tracking-[0.2em]">Danger Zone</h3>
+    <p className="text-[11px] text-zinc-500">Manage your session or terminate your data presence.</p>
+  </div>
+  
+  <div className="flex flex-col gap-2">
+    <SignOutButton />
+    <DeleteAccountButton /> {/* Added here */}
+  </div>
+</div>
       </div>
     </div>
   );

@@ -25,7 +25,6 @@ export default async function DashboardPage() {
       {/* High-level financial cards */}
       <WalletOverview 
         lent={summary.totalLent} 
-        owed={summary.totalOwed} 
       />
 
       {/* Quick Navigation Grid */}
