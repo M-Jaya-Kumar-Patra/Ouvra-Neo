@@ -28,37 +28,39 @@ export async function createVault(formData: FormData) {
 
   await connectToDatabase();
 
-  // If this new vault has round-ups enabled, turn them off for all others
+  // FIX: Only attempt to reset round-ups if 'vaults' array exists and is not empty
   if (validated.roundUpEnabled) {
     await User.updateOne(
-      { _id: session.user.id },
+      { 
+        _id: session.user.id, 
+        vaults: { $exists: true, $not: { $size: 0 } } // THE GUARD
+      },
       { $set: { "vaults.$[].roundUpEnabled": false } }
     );
   }
 
-  // Inside createVault function
-await User.findByIdAndUpdate(
-  session.user.id, 
-  {
-    $push: {
-      vaults: {
-        ...validated,
-        currentBalance: 0,
-        history: [], // Also initialize history to prevent future errors
+  // Now create the vault safely
+  await User.findByIdAndUpdate(
+    session.user.id,
+    {
+      $push: {
+        vaults: {
+          ...validated,
+          currentBalance: 0,
+          history: [],
+        },
       },
     },
-  },
-  { 
-    new: true, 
-    upsert: true, // This creates the path if it's missing
-    setDefaultsOnInsert: true 
-  }
-);
+    { 
+      new: true, 
+      upsert: true, 
+      runValidators: true 
+    }
+  );
 
   revalidatePath("/vaults");
   revalidatePath("/dashboard");
 }
-
 
 export async function updateVault(vaultId: string, formData: FormData) {
   const session = await auth();
