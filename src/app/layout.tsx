@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Ouvra Neo",
-  description: "Modern Fintech SaaS for intelligent bill splitting",
+  description: "AI-Powered Personal Finance & Expense Split Tracking Platform",
   manifest: "/site.webmanifest", // Browser looks in /public/site.webmanifest
   icons: {
     icon: [
