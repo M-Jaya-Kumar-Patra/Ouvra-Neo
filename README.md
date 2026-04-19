@@ -59,6 +59,22 @@ npm run dev
 
 ```
 
+
+## 🔐 Environment Variables
+
+Create a `.env.local` file in the root directory and add the following:
+
+```env
+MONGODB_URI=your_mongodb_connection
+NEXTAUTH_SECRET=your_secret
+NEXTAUTH_URL=http://localhost:3000
+
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+GROQ_API_KEY=your_groq_api_key
+
+```
 ---
 
 ## 📌 Key Highlights
