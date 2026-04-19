@@ -55,3 +55,33 @@ git clone https://github.com/M-Jaya-Kumar-Patra/Ouvra-Neo.git
 cd ouvra-neo
 npm install
 npm run dev
+
+
+```
+
+---
+
+## 📌 Key Highlights
+
+- ⚡ Efficiently tracks group expense splits  
+- 🧾 OCR reduces manual data entry  
+- 🤖 AI-powered categorization & insights  
+- 📱 Mobile-first smooth experience  
+- 🔐 Secure authentication system  
+
+---
+
+## 🧠 Future Enhancements
+
+- 💸 Direct payment integration (UPI settlement)  
+- 📩 SMS-based expense detection  
+- 🤖 AI financial assistant  
+- 🔄 Debt simplification algorithm  
+
+---
+
+## 👨‍💻 Developer
+
+**Jaya**  
+Full-Stack Developer  
+Focused on building personal finance solutions  
