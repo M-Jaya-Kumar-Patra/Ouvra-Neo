@@ -1,23 +1,18 @@
-import type { NextAuthConfig } from "next-auth";
+import Google from "next-auth/providers/google";
+import Credentials from "next-auth/providers/credentials";
 
 export const authConfig = {
+  providers: [
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID!,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+    }),
+    Credentials({
+      async authorize() {
+        return null; // ⚠️ NOT used in middleware
+      },
+    }),
+  ],
   session: { strategy: "jwt" },
-  pages: {
-    signIn: "/login",
-  },
-  callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = !!auth?.user;
-      const isAuthPage = nextUrl.pathname.startsWith('/login') || nextUrl.pathname.startsWith('/register');
-      
-      // The logic you wanted:
-      if (isAuthPage) {
-        if (isLoggedIn) return Response.redirect(new URL('/dashboard', nextUrl));
-        return true;
-      }
-
-      return true; // Fallback
-    },
-  },
-  providers: [], // Add empty providers here, will be merged in auth.ts
-} satisfies NextAuthConfig;
+  secret: process.env.NEXTAUTH_SECRET,
+};
