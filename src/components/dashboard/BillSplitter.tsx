@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect, useRef } from "react";
-import { Plus, X, ReceiptText, IndianRupee, Loader2, Save, Camera, QrCode, CreditCard } from "lucide-react";
+import { Plus, X, ReceiptText, IndianRupee, Loader2, Save, Camera, QrCode, CreditCard, ImageIcon } from "lucide-react";
 import { createSplitRecord, extractInvoiceData } from "@/lib/actions/split.actions";
 import Tesseract from 'tesseract.js';
 import { Html5Qrcode } from "html5-qrcode";
@@ -21,7 +21,7 @@ export function BillSplitter({ userId }: { userId: string }) {
   const [isScanning, setIsScanning] = useState(false);
   const [isQRScannerOpen, setIsQRScannerOpen] = useState(false);
   const [shopUpi, setShopUpi] = useState("");
-  const [shopName, setShopName] = useState("");
+  const [shopName, setShopName] = useState("Merchant");
   const [description, setDescription] = useState("");
   
   // Use a ref to track the scanner instance for reliable cleanup
@@ -43,45 +43,55 @@ export function BillSplitter({ userId }: { userId: string }) {
     }
   }, [totalNum, friends.length]);
 
+  const handleQRSuccess = (decodedText: string) => {
+  if (decodedText.includes("upi://pay")) {
+    const urlParams = new URLSearchParams(decodedText.split('?')[1]);
+    setShopUpi(urlParams.get('pa') || "");
+    const pn = urlParams.get('pn');
+    // Using your default logic: if pn exists use it, otherwise keep "Merchant"
+    if (pn) setShopName(decodeURIComponent(pn));
+    
+    stopScanner();
+  } else {
+    alert("No valid UPI data found.");
+  }
+};
+
   // --- IMPROVED QR CAMERA LOGIC WITH CLEANUP ---
-  useEffect(() => {
-    if (isQRScannerOpen) {
-      const html5QrCode = new Html5Qrcode("qr-reader");
-      qrScannerRef.current = html5QrCode;
-      
-      const config = { 
-        fps: 20, 
-        qrbox: (w: number, h: number) => {
-          const size = Math.floor(Math.min(w, h) * 0.8);
-          return { width: size, height: size };
-        }
-      };
+  // Update your useEffect to include a small timeout or check
+useEffect(() => {
+  if (isQRScannerOpen) {
+    // Small delay to ensure the modal's "qr-reader" div is rendered in the DOM
+    const setupScanner = async () => {
+      try {
+        const html5QrCode = new Html5Qrcode("qr-reader");
+        qrScannerRef.current = html5QrCode;
 
-      html5QrCode.start(
-        { facingMode: "environment" },
-        config,
-        (decodedText) => {
-          if (decodedText.includes("upi://pay")) {
-            const urlParams = new URLSearchParams(decodedText.split('?')[1]);
-            setShopUpi(urlParams.get('pa') || "");
-            const pn = urlParams.get('pn');
-            if (pn) setShopName(decodeURIComponent(pn));
-            
-            stopScanner();
+        const config = {
+          fps: 20,
+          qrbox: (w: number, h: number) => {
+            const size = Math.floor(Math.min(w, h) * 0.8);
+            return { width: size, height: size };
           }
-        },
-        () => {} 
-      ).catch((err) => console.error("Scanner start failed", err));
-    } else {
-      stopScanner();
-    }
+        };
 
-    // This handles the "changing page" or unmounting scenario
-    return () => {
-      stopScanner();
+        await html5QrCode.start(
+          { facingMode: "environment" },
+          config,
+          (decodedText) => handleQRSuccess(decodedText), // Use the helper
+          () => {}
+        );
+      } catch (err) {
+        console.error("Scanner start failed", err);
+      }
     };
-  }, [isQRScannerOpen]);
 
+    const timer = setTimeout(setupScanner, 100); // Give React 100ms to mount the modal
+    return () => clearTimeout(timer);
+  } else {
+    stopScanner();
+  }
+}, [isQRScannerOpen]);
   const stopScanner = async () => {
     if (qrScannerRef.current && qrScannerRef.current.isScanning) {
       try {
@@ -197,6 +207,22 @@ const handleAction = () => {
   });
 };
 
+
+
+
+const handleQRFileScan = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  // Use the existing scanner instance or create a temp one
+  const scanner = qrScannerRef.current || new Html5Qrcode("qr-reader");
+  try {
+    const result = await scanner.scanFileV2(file, true);
+    handleQRSuccess(result.decodedText);
+  } catch (err) {
+    alert("Could not read QR from gallery. Please use a clearer image.");
+  }
+};
 
 
   const remaining = totalNum - friendsTotal;
@@ -317,14 +343,37 @@ const handleAction = () => {
       </div>
 
       {isQRScannerOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-3xl p-6 relative">
-            <button onClick={stopScanner} className="absolute -top-12 right-0 text-white flex items-center gap-2 font-bold text-sm"><X size={20} /> Close</button>
-            <div id="qr-reader" className="overflow-hidden rounded-2xl border-2 border-indigo-500 bg-black aspect-square w-full"></div>
-            <p className="text-zinc-500 text-[10px] text-center mt-4 uppercase tracking-widest font-bold">Align QR within frame</p>
-          </div>
+  <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-3xl p-6 relative">
+      <button onClick={stopScanner} className="absolute -top-12 right-0 text-white flex items-center gap-2 font-bold text-sm">
+        <X size={20} /> Close
+      </button>
+      
+      {/* Live Camera View */}
+      <div id="qr-reader" className="overflow-hidden rounded-2xl border-2 border-indigo-500 bg-black aspect-square w-full"></div>
+      
+      <div className="mt-6 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="h-[1px] bg-zinc-800 flex-1" />
+          <span className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest">Or</span>
+          <div className="h-[1px] bg-zinc-800 flex-1" />
         </div>
-      )}
+
+        {/* Gallery Upload Button */}
+        <label className="w-full py-3.5 bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 cursor-pointer transition-all border border-zinc-700 active:scale-95">
+          <ImageIcon size={16} /> {/* or use Camera icon */}
+          Gallery QR
+          <input 
+            type="file" 
+            accept="image/*" 
+            className="hidden" 
+            onChange={handleQRFileScan} 
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
