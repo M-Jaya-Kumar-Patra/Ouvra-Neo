@@ -36,7 +36,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   session: { strategy: "jwt" },
-  secret: process.env.AUTH_SECRET, // REQUIRED for middleware to read the token
+  secret: process.env.NEXTAUTH_SECRET, // REQUIRED for middleware to read the token
   pages: {
     signIn: "/login", // Tells NextAuth that /login is your custom auth page
   },
