@@ -27,10 +27,12 @@ export function AddTransaction() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
-          <Plus className="h-4 w-4" /> Add Transaction
-        </Button>
-      </SheetTrigger>
+  {/* Added w-full and h-11 to match the Split Bill link */}
+  <Button className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white gap-2 font-bold rounded-xl shadow-lg shadow-blue-600/10">
+    <Plus className="h-4 w-4" /> 
+    <span>Add Transaction</span>
+  </Button>
+</SheetTrigger>
       <SheetContent className="px-6 bg-zinc-950 border-zinc-800 text-white">
         <SheetHeader>
           <SheetTitle className="text-white">New Transaction</SheetTitle>

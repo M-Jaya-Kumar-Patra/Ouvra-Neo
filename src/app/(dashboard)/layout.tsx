@@ -42,12 +42,12 @@ async function MobileHeader() {
   const userImage = session?.user?.image;
 
   return (
-    <header className="md:hidden flex items-center justify-between px-6 py-5 bg-[#09090b]/80 backdrop-blur-2xl border-b border-zinc-800/50 z-40 h-20">
-      <div className="flex items-center gap-4">
+    <header className="md:hidden flex items-center justify-between px-4 py-5 bg-[#09090b]/80 backdrop-blur-2xl border-b border-zinc-800/50 z-40 h-20">
+      <div className="flex items-center gap-3">
         <div className="relative h-10 w-10">
           <Image src="/logo.png" alt="Logo" fill className="object-contain" priority />
         </div>
-        <span className="text-xl font-black tracking-tighter italic bg-gradient-to-r from-white to-zinc-500 bg-clip-text text-transparent">
+        <span className="text-xl font-black tracking-tighter italic bg-gradient-to-r from-white to-zinc-500 bg-clip-text text-transparent px-1">
           OUVRA NEO
         </span>
       </div>
@@ -83,7 +83,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <MobileHeader />
         </Suspense>
 
-        <main className="flex-1 overflow-y-auto p-6 pb-32">
+        <main className="flex-1 overflow-y-auto p-2 md:p-6 pb-32">
           <div className="max-w-7xl mx-auto space-y-8">
             {children}
           </div>

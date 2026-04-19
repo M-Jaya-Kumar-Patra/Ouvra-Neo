@@ -4,7 +4,7 @@ import { InsightsContent } from "@/components/insights/InsightsContent";
 
 export default function InsightsPage() {
   return (
-    <div className="p-6 space-y-8 max-w-7xl mx-auto">
+    <div className="p-2 md:p-6 space-y-8 max-w-7xl mx-auto">
       {/* Static Header - This renders instantly */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -12,7 +12,7 @@ export default function InsightsPage() {
             <BrainCircuit className="h-7 w-7 text-blue-500" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">AI Co-Pilot</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">AI Co-Pilot</h1>
             <p className="text-zinc-400 text-sm">Real-time financial strategy analysis.</p>
           </div>
         </div>

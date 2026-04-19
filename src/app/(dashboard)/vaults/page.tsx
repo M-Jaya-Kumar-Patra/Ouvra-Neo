@@ -4,11 +4,11 @@ import { VaultsContent } from "@/components/vaults/VaultsContent";
 
 export default function VaultsPage() {
   return (
-    <div className="space-y-8">
+    <div className="p-2 md:p-0 space-y-8">
       {/* Static Header Section */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Your Vaults</h1>
+        <div className="w-[50%] md:w-full">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">Your Vaults</h1>
           <p className="text-zinc-400 text-sm mt-1">Automated savings goals tailored by AI.</p>
         </div>
         <CreateVault />

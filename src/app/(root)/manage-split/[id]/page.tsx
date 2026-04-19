@@ -73,7 +73,7 @@ const progressPercent = totalLent > 0 ? (totalSettled / totalLent) * 100 : 100;
       {/* 1. Header & Quick Stats */}
       <section className="space-y-6">
         <div>
-          <h1 className="text-4xl font-black tracking-tight">{split.description}</h1>
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight">{split.description}</h1>
           <p className="text-zinc-500 mt-1">Created on {new Date(split.createdAt || Date.now()).toLocaleDateString()}</p>
         </div>
 

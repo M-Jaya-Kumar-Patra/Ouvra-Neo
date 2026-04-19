@@ -72,7 +72,7 @@ export default function LoginPage() {
           </div>
           {/* --- LOGO SECTION END --- */}
 
-          <CardTitle className="text-3xl font-bold tracking-tighter text-white italic">
+          <CardTitle className="text-3xl font-black tracking-tighter italic bg-gradient-to-r from-white to-zinc-500 bg-clip-text text-transparent px-1">
             OUVRA NEO
           </CardTitle>
           <CardDescription className="text-zinc-400 text-sm">

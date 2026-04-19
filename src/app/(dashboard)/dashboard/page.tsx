@@ -197,28 +197,32 @@ const { percentageChange, isPositive } = calculateTrend(allTransactions);
 
 // Inside OverviewPage.tsx -> DashboardContent component
 return (
-  <div className="space-y-6 p-4 md:p-6  max-w-[1600px] mx-auto overflow-x-hidden">
+  <div className="space-y-6 p-2 md:p-6  max-w-[1600px] mx-auto overflow-x-hidden">
 
     {/* Header Section: Stack on mobile, side-by-side on md+ */}
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
-      <div className="space-y-1">
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white italic">
-          Welcome, {firstName}
-        </h1>
-        <p className="text-zinc-400 text-sm md:text-base">Your financial overview at a glance.</p>
-      </div>
-      
-      {/* Action Buttons: Full width on mobile */}
-      <div className="flex items-center gap-3 w-full sm:w-auto">
-        <Link href="/split" className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600/10 border border-blue-500/20 text-blue-400 rounded-xl text-sm font-bold hover:bg-blue-600/20 transition-all">
-          <Users2 size={16} />
-          Split Bill
-        </Link>
-        <div className="flex-1 sm:flex-none">
-          <AddTransaction />
-        </div>
-      </div>
+<div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
+  <div className="space-y-1">
+    <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white italic">
+      Welcome, {firstName}
+    </h1>
+    <p className="text-zinc-400 text-sm md:text-base">Your financial overview at a glance.</p>
+  </div>
+  
+  {/* Action Buttons: Perfectly sized and aligned */}
+  <div className="flex items-center gap-3 w-full sm:w-auto">
+    <Link 
+      href="/split" 
+      className="flex-1 sm:w-40 flex items-center justify-center gap-2 h-11 px-4 bg-blue-600/10 border border-blue-500/20 text-blue-400 rounded-xl text-sm font-bold hover:bg-blue-600/20 transition-all"
+    >
+      <Users2 size={16} />
+      <span>Split Bill</span>
+    </Link>
+    
+    <div className="flex-1 sm:w-40">
+      <AddTransaction />
     </div>
+  </div>
+</div>
 
     {/* Stats Grid: 1 col on mobile, 3 on md */}
     <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
