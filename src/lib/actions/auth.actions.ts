@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import User from "@/lib/models/User";
 import { connectToDatabase } from "@/lib/mongodb";
 import { redirect } from "next/navigation";
+import speakeasy from 'speakeasy';
 
 export async function signUp(formData: FormData) {
   const email = formData.get("email") as string;
@@ -35,4 +36,14 @@ export async function signUp(formData: FormData) {
   });
 
   redirect("/login");
+}
+
+
+export async function verifyOTP(userToken: string, secret: string) {
+  return speakeasy.totp.verify({
+    secret: secret,
+    encoding: 'base32',
+    token: userToken,
+    window: 1 // Allows for 30s clock drift
+  });
 }

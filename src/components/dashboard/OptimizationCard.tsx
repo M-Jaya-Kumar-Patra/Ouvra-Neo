@@ -26,7 +26,7 @@ export function OptimizationCard({ userId, savingsAmount }: OptimizationCardProp
 };
 
   return (
-    <div className="p-8 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-700 text-white">
+    <div className="p-8 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-700  text-white">
       <Zap className="h-8 w-8 mb-4 fill-white" />
       <h3 className="text-2xl font-bold mb-2">AI Optimization</h3>
       <p className="text-blue-100 text-sm mb-8">

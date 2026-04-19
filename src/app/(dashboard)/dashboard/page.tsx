@@ -29,18 +29,62 @@ import {
   ChevronRight 
 } from 'lucide-react';
 // 1. Loading Skeleton
-function DashboardSkeleton() {
+// 1. Loading Skeleton
+function ChartSkeleton() {
   return (
-    <div className="space-y-8 p-6 animate-pulse">
-      <div className="h-10 w-48 bg-zinc-800 rounded" />
-      <div className="grid gap-6 lg:grid-cols-7">
-        <div className="lg:col-span-4 h-64 bg-zinc-900 rounded-xl" />
-        <div className="lg:col-span-3 h-64 bg-zinc-900 rounded-xl" />
+    <div className="w-full h-[350px] bg-zinc-900/50 rounded-3xl border border-zinc-800 p-6 flex flex-col justify-between overflow-hidden">
+      <div className="flex justify-between items-center mb-8">
+        <div className="space-y-2">
+          <div className="h-5 w-32 bg-zinc-800 rounded-md animate-pulse" />
+          <div className="h-3 w-48 bg-zinc-800/50 rounded-md animate-pulse" />
+        </div>
+        <div className="flex gap-2">
+          <div className="h-8 w-16 bg-zinc-800 rounded-lg animate-pulse" />
+          <div className="h-8 w-16 bg-zinc-800 rounded-lg animate-pulse" />
+        </div>
+      </div>
+      
+      {/* Mocking the bars of a chart */}
+      <div className="flex items-end justify-between gap-4 h-full px-2">
+        {[60, 40, 80, 50, 90, 70, 45].map((height, i) => (
+          <div 
+            key={i} 
+            className="w-full bg-zinc-800/40 rounded-t-lg animate-pulse" 
+            style={{ height: `${height}%` }} 
+          />
+        ))}
       </div>
     </div>
   );
 }
 
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-8 p-4 md:p-6 animate-pulse max-w-[1600px] mx-auto">
+      {/* Header Skeleton */}
+      <div className="flex justify-between items-center">
+        <div className="space-y-2">
+          <div className="h-10 w-64 bg-zinc-800 rounded-xl" />
+          <div className="h-4 w-48 bg-zinc-800/50 rounded-lg" />
+        </div>
+      </div>
+
+      {/* Stats Grid Skeleton */}
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
+        <div className="h-32 bg-zinc-900/50 rounded-3xl border border-zinc-800" />
+        <div className="md:col-span-2 h-32 bg-zinc-900/50 rounded-3xl border border-zinc-800" />
+      </div>
+
+      {/* Main Content Skeleton */}
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-7">
+        <div className="lg:col-span-4">
+          <ChartSkeleton />
+        </div>
+        <div className="lg:col-span-3 h-[350px] bg-zinc-900/50 rounded-3xl border border-zinc-800" />
+      </div>
+    </div>
+  );
+}
 
 
 type TransactionDoc = {
@@ -151,75 +195,100 @@ const [dbUser, allTransactions, splitSummary] = await Promise.all([
 const { percentageChange, isPositive } = calculateTrend(allTransactions);
 
 
+// Inside OverviewPage.tsx -> DashboardContent component
+return (
+  <div className="space-y-6 p-4 md:p-6  max-w-[1600px] mx-auto overflow-x-hidden">
 
-  return (
-    <div className="space-y-8 p-6">
-
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight text-white">Welcome, {firstName}</h1>
-          <p className="text-zinc-400">Your financial overview at a glance.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link href="/split" className="flex items-center gap-2 px-4 py-2 bg-blue-600/10 border border-blue-500/20 text-blue-400 rounded-xl text-sm font-bold hover:bg-blue-600/20 transition-all">
-            <Users2 size={16} />
-            Split Bill
-          </Link>
+    {/* Header Section: Stack on mobile, side-by-side on md+ */}
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
+      <div className="space-y-1">
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white italic">
+          Welcome, {firstName}
+        </h1>
+        <p className="text-zinc-400 text-sm md:text-base">Your financial overview at a glance.</p>
+      </div>
+      
+      {/* Action Buttons: Full width on mobile */}
+      <div className="flex items-center gap-3 w-full sm:w-auto">
+        <Link href="/split" className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600/10 border border-blue-500/20 text-blue-400 rounded-xl text-sm font-bold hover:bg-blue-600/20 transition-all">
+          <Users2 size={16} />
+          Split Bill
+        </Link>
+        <div className="flex-1 sm:flex-none">
           <AddTransaction />
         </div>
       </div>
-
-
-
-      <div className="grid gap-6 md:grid-cols-3  ">
-        <Card className="bg-zinc-900/50 rounded-3xl border-zinc-800 ">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-400">Available Balance</CardTitle>
-            <Wallet className="h-4 w-4 text-blue-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-white">{formattedBalance}</div>
-            <p className={`text-xs flex items-center gap-1 mt-2 ${isPositive ? "text-emerald-500" : "text-rose-500"}`}>
-              {isPositive ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownLeft className="h-3 w-3" />}
-              {percentageChange.toFixed(1)}% from last month
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Integration of WalletOverview into the main layout */}
-        <div className="md:col-span-2">
-          <WalletOverview lent={splitSummary.totalLent} owed={splitSummary.totalOwed} />
-        </div>
-      </div>
-
-
-
-
-
-      
-
-      {/* 2. Top Grid: Chart & Recent Activity */}
-      <div className="grid gap-6 lg:grid-cols-7 items-stretch min-h-[420px]">
-        <div className="lg:col-span-4">
-          <TransactionChartWrapper data={chartData} />
-        </div>
-        <div className="lg:col-span-3">
-          <RecentTransactions transactions={filteredTransactions} />
-        </div>
-      </div>
-
-      {/* 3. Bottom Grid: Balance & AI Insight */}
-      <div className="grid gap-6 md:grid-cols-3">
-        
-
-        <div className="md:col-span-3">
-          <Suspense fallback={<div className="h-32 w-full bg-zinc-900/50 animate-pulse rounded-xl border border-zinc-800" />}>
-            <AIInsightCard />
-          </Suspense>
-        </div>
-      </div>
     </div>
-  );
+
+    {/* Stats Grid: 1 col on mobile, 3 on md */}
+    <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
+      <Card className="bg-zinc-900/50 rounded-3xl border-zinc-800 shadow-xl">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-sm font-medium text-zinc-400">Available Balance</CardTitle>
+          <Wallet className="h-4 w-4 text-blue-500" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl md:text-3xl font-bold text-white tracking-tighter">
+            {formattedBalance}
+          </div>
+          <p className={`text-xs flex items-center gap-1 mt-2 ${isPositive ? "text-emerald-500" : "text-rose-500"}`}>
+            {isPositive ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownLeft className="h-3 w-3" />}
+            {percentageChange.toFixed(1)}% from last month
+          </p>
+        </CardContent>
+      </Card>
+
+      <div className="md:col-span-2">
+  <Suspense fallback={
+    <div className="h-32 w-full bg-zinc-900/50 rounded-3xl border border-zinc-800 p-6 flex gap-4 animate-pulse">
+      <div className="flex-1 bg-zinc-800/50 rounded-2xl" />
+      <div className="flex-1 bg-zinc-800/50 rounded-2xl" />
+    </div>
+  }>
+    <WalletOverview lent={splitSummary.totalLent} owed={splitSummary.totalOwed} />
+  </Suspense>
+</div>
+    </div>
+
+    {/* Main Content Grid: Stack on mobile/tablet, side-by-side on lg */}
+    <div className="grid gap-6 grid-cols-1 lg:grid-cols-7 items-stretch">
+      {/* Chart: Take full width on mobile, 4/7 on lg */}
+      <div className="lg:col-span-4 w-full overflow-hidden ">
+        <TransactionChartWrapper data={chartData} />
+      </div>
+      
+      {/* Recent Activity: 3/7 on lg */}
+<div className="lg:col-span-3 h-full">
+  <Suspense fallback={
+    <div className="h-[350px] w-full bg-zinc-900/50 rounded-3xl border border-zinc-800 p-6 space-y-4">
+      <div className="h-5 w-32 bg-zinc-800 rounded mb-6 animate-pulse" />
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-zinc-800 animate-pulse" />
+            <div className="space-y-2">
+              <div className="h-4 w-24 bg-zinc-800 rounded animate-pulse" />
+              <div className="h-3 w-16 bg-zinc-800/50 rounded animate-pulse" />
+            </div>
+          </div>
+          <div className="h-4 w-12 bg-zinc-800 rounded animate-pulse" />
+        </div>
+      ))}
+    </div>
+  }>
+    <RecentTransactions transactions={filteredTransactions} />
+  </Suspense>
+</div>
+    </div>
+
+    {/* AI Insight: Full width always */}
+    <div className="w-full">
+      <Suspense fallback={<div className="h-32 w-full bg-zinc-900/50 animate-pulse rounded-3xl border border-zinc-800" />}>
+        <AIInsightCard />
+      </Suspense>
+    </div>
+  </div>
+);
 }
 
 

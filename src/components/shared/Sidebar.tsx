@@ -11,7 +11,8 @@ import {
   UserCircle, // Changed from Settings for better Profile UX
   ArrowUpRight,
   ArrowDownLeft,
-  LogOut 
+  LogOut, 
+  Settings
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -20,7 +21,8 @@ const navItems = [
   { name: 'Smart Vaults', href: '/vaults', icon: Wallet },
   { name: 'AI Co-Pilot', href: '/insights', icon: Sparkles },
   { name: 'Bill Splitter', href: '/split', icon: Receipt },
-  { name: 'Account', href: '/profile', icon: UserCircle }, // Updated to link to your new Profile page
+  { name: 'Settings', href: '/settings/security', icon: Settings }, // Link to your 2FA/Security page
+  { name: 'Account', href: '/profile', icon: UserCircle },
 ];
 
 export default function Sidebar({ 
@@ -80,7 +82,7 @@ export default function Sidebar({
       </nav>
 
       {/* Footer Section */}
-      <div className="px-4 mt-auto space-y-4">
+      <div className="px-4 mt-auto space-y-4 mb-6">
         {/* Dynamic Portfolio Card */}
         <div className="p-4 rounded-xl bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 border border-zinc-700/30 backdrop-blur-sm">
           <p className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1 font-semibold">Total Portfolio</p>

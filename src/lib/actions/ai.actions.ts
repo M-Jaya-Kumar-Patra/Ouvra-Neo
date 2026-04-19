@@ -2,7 +2,7 @@
 
 import { auth } from "@/auth";
 import Transaction from "@/lib/models/Transaction";
-import User from "@/lib/models/User"; // Import User model
+import User from "@/lib/models/User";
 import { connectToDatabase } from "@/lib/mongodb";
 import { groq } from "@/lib/groq";
 
@@ -13,12 +13,12 @@ export async function getAIInsight() {
 
     await connectToDatabase();
 
-    // 1. Fetch BOTH the real-time balance and transactions from DB
+    // 1. Fetch more data (last 40 transactions) to identify patterns/subscriptions
     const [dbUser, recentTransactions] = await Promise.all([
       User.findById(session.user.id).select("balance").lean(),
       Transaction.find({ userId: session.user.id })
         .sort({ date: -1 })
-        .limit(10)
+        .limit(100) 
         .lean()
     ]);
 
@@ -26,48 +26,56 @@ export async function getAIInsight() {
       return "Add some transactions so I can analyze your spending habits!";
     }
 
-    // 2. Use the LIVE balance from the database, not the session
     const currentBalance = dbUser?.balance ?? 0;
+    const today = new Date().toLocaleDateString();
     
-    // 3. Use the summarized text for the prompt
+    // 2. Format data with dates so AI can see "Repeating" intervals
     const dataSummary = recentTransactions
-      .map((t) => `${t.type}: $${t.amount} for ${t.description} (${t.category})`)
-      .join(", ");
+      .map((t) => `[${new Date(t.date).toLocaleDateString()}] ${t.type}: $${t.amount} - ${t.description} (${t.category})`)
+      .join("\n");
 
-    // 1. Refined System Message
-const systemMessage = `
-  You are a concise financial co-pilot. 
-  Your goal is to give 1-sentence, high-impact advice (MAX 20 words). 
-  Use a professional yet punchy tone.
-`;
+    // 3. High-Impact Wealth Management System Message
+    const systemMessage = `
+      You are Ouvra Neo's Wealth Co-Pilot. 
+      Analyze the user's data for:
+      1. Subscriptions: Identify repeating amounts/descriptions (e.g., Netflix, Gym).
+      2. Duplicates: Spot similar charges within 24 hours.
+      3. Upcoming Bills: Remind user if a repeating date is near.
+      4. Wealth Strategy: If balance is high, suggest "Smart Vaults". If low, suggest a cutback.
+      
+      RULES:
+      - Max 2 sentences.
+      - Be extremely specific (mention specific merchants or amounts).
+      - Use a helpful, elite financial tone.
+    `;
 
-// 2. Clearer User Prompt
-const prompt = `
-  Balance: $${currentBalance}. 
-  Data: ${dataSummary}.
-  Give 1 short sentence of advice.
-`;
+    const prompt = `
+      Current Date: ${today}
+      Balance: $${currentBalance}
+      Transaction History:
+      ${dataSummary}
 
-// 3. The API Call
-const chatCompletion = await groq.chat.completions.create({
-  messages: [
-    { role: "system", content: systemMessage },
-    { role: "user", content: prompt }
-  ],
-  model: "llama-3.3-70b-versatile",
-  max_tokens: 50, // Hard limit to prevent long responses
-  temperature: 0.4, // Lower temperature = more direct, less creative
-});
+      Give me the most urgent insight based on this data.
+    `;
+
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        { role: "system", content: systemMessage },
+        { role: "user", content: prompt }
+      ],
+      model: "llama-3.3-70b-versatile",
+      max_tokens: 100,
+      temperature: 0.5,
+    });
 
     const insight = chatCompletion.choices[0]?.message?.content || "No insight available.";
     return insight.trim();
 
   } catch (error: unknown) {
     console.error("Insight Error:", error);
-    return "Keep tracking your expenses to see more detailed insights!";
+    return "Analyzing your wealth patterns... keep recording transactions for better insights.";
   }
 }
-
 
 
 export async function predictCategory(description: string) {

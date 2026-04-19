@@ -16,7 +16,7 @@ const TransactionChart = dynamic(
 
 export function TransactionChartWrapper({ data }: { data: ChartData[] }) {
   return (
-    <div className="w-full h-[300px]">
+    <div className="w-full h-full min-h-[350px] lg:min-h-[420px] ">
       <TransactionChart data={data} />
     </div>
   );

@@ -18,73 +18,90 @@ interface ChartData {
   expense: number;
 }
 
+// TransactionChart.tsx
 export function TransactionChart({ data }: { data: ChartData[] }) {
   return (
-    <Card className="bg-zinc-900/50 border-zinc-800 col-span-full h-[420px]">
-      <CardHeader>
-        <CardTitle className="text-xl font-medium   ">
+    <Card className="bg-zinc-900/50 border-zinc-800 h-full w-full flex flex-col rounded-3xl overflow-hidden border-none ring-1 ring-zinc-800 px-2">
+       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-lg md:text-xl font-bold text-white tracking-tight">
           Cash Flow Analytics
         </CardTitle>
+        <div className="flex items-center gap-4 text-[10px] uppercase font-bold tracking-widest">
+          <div className="flex items-center gap-1.5 text-emerald-500">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" /> Income
+          </div>
+          <div className="flex items-center gap-1.5 text-blue-500">
+            <span className="h-2 w-2 rounded-full bg-blue-500" /> Expense
+          </div>
+        </div>
       </CardHeader>
-      {/* Adding a fixed height and min-width to the container fixes the Recharts warning */}
-    <CardContent className="pt-4 h-[340px] w-full"> 
-  <div className="w-full h-full min-h-[300px]">
-    {/* 2. Set width to 100% and height to 100% so it fills the 350px container */}
-    <ResponsiveContainer width="100%" height="100%">
-      <AreaChart data={data}>
-            <defs>
-              <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid
-              strokeDasharray="3 3"
-              vertical={false}
-              stroke="#27272a"
-            />
-            <XAxis
-              dataKey="date"
-              stroke="#71717a"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-            />
-            <YAxis
-              stroke="#71717a"
-              fontSize={12}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(value) => `$${value}`}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#09090b",
-                border: "1px solid #27272a",
-                borderRadius: "8px",
-              }}
-              itemStyle={{ fontSize: "12px" }}
-            />
-            <Area
-              type="monotone"
-              dataKey="income"
-              stroke="#10b981"
-              fillOpacity={1}
-              fill="url(#colorIncome)"
-            />
-            <Area
-              type="monotone"
-              dataKey="expense"
-              stroke="#3b82f6"
-              fillOpacity={1}
-              fill="url(#colorExpense)"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+      
+      <CardContent className="flex-1 pb-6 pt-4 px-4 md:px-6"> 
+        <div className="w-full h-full min-h-[250px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke="#27272a"
+                opacity={0.5}
+              />
+              <XAxis
+                dataKey="date"
+                stroke="#71717a"
+                fontSize={10}
+                tickLine={false}
+                axisLine={false}
+                tickMargin={10}
+              />
+              <YAxis
+                stroke="#71717a"
+                fontSize={10}
+                tickLine={false}
+                axisLine={false}
+                // FIXED: Changed to Rupee and simplified for small screens
+                tickFormatter={(value) => `₹${value >= 1000 ? `${value / 1000}k` : value}`}
+                width={60}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#09090b",
+                  border: "1px solid #27272a",
+                  borderRadius: "12px",
+                  fontSize: "12px"
+                }}
+                cursor={{ stroke: '#27272a', strokeWidth: 2 }}
+              />
+              <Area
+                type="monotone"
+                dataKey="income"
+                stroke="#10b981"
+                strokeWidth={3}
+                fillOpacity={1}
+                fill="url(#colorIncome)"
+                animationDuration={1500}
+              />
+              <Area
+                type="monotone"
+                dataKey="expense"
+                stroke="#3b82f6"
+                strokeWidth={3}
+                fillOpacity={1}
+                fill="url(#colorExpense)"
+                animationDuration={1500}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
       </CardContent>
     </Card>

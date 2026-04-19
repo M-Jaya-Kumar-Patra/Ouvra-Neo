@@ -7,6 +7,8 @@ const UserSchema = new mongoose.Schema(
     fullName: { type: String },
     upiId: { type: String },
     balance: { type: Number, default: 0 },
+    is2FAEnabled: { type: Boolean, default: false },
+    twoFASecret: { type: String }, // Encrypted secret for TOTP
     vaults: [
       {
         name: String,
@@ -23,11 +25,13 @@ const UserSchema = new mongoose.Schema(
         default: "medium",
       },
     },
-    history: [{
-    amount: Number,
-    type: { type: String, enum: ['round-up', 'manual'] },
-    createdAt: { type: Date, default: Date.now }
-  }]
+    history: [
+      {
+        amount: Number,
+        type: { type: String, enum: ["round-up", "manual"] },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   { timestamps: true },
 );

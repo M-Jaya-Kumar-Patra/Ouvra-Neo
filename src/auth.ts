@@ -41,17 +41,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: "/login", // Tells NextAuth that /login is your custom auth page
   },
 callbacks: {
-  async jwt({ token, user }) {
+  async jwt({ token, user, trigger, session }) {
+    // Initial sign in
     if (user) {
       token.id = user.id!;
-      token.fullName = user.fullName; // No 'as any' needed!
+      token.fullName = (user as any).fullName;
+      token.is2FAEnabled = (user as any).is2FAEnabled || false;
+      token.is2FAVerified = false; // Always starts false on new login
     }
+
+    // Handle session updates (Optional: for when the user enables 2FA without logging out)
+    if (trigger === "update" && session) {
+      token.is2FAVerified = session.is2FAVerified;
+    }
+
     return token;
   },
   async session({ session, token }) {
     if (session.user) {
-      session.user.id = token.id as string;
-      session.user.fullName = token.fullName as string; // No 'as any' needed!
+      session.user.id = token.id;
+      session.user.fullName = token.fullName as string;
+      session.user.is2FAEnabled = token.is2FAEnabled as boolean; // ADD THIS
+      session.user.is2FAVerified = token.is2FAVerified as boolean;
     }
     return session;
   },

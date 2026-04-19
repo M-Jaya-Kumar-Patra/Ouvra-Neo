@@ -26,5 +26,5 @@ export async function TransactionTableWrapper({
 
   const allTransactions = await Transaction.find(filter).sort({ date: -1 }).lean();
 
-  return <RecentTransactions transactions={JSON.parse(JSON.stringify(allTransactions))} />;
+  return <RecentTransactions transactions={JSON.parse(JSON.stringify(allTransactions))} fullWidth={true}/>;
 }
