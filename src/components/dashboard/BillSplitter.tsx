@@ -47,63 +47,44 @@ useEffect(() => {
 
   
   useEffect(() => {
+  // 1. Explicitly type the variable here
   let html5QrCode: Html5Qrcode | null = null;
 
   if (isQRScannerOpen) {
-    // 1. Initialize instance
+    // 2. Assign the instance
     html5QrCode = new Html5Qrcode("qr-reader");
     
     const config = { 
-      fps: 15, // Reduced slightly for better processing on mid-range phones
+      fps: 20, 
       qrbox: (w: number, h: number) => {
-        const size = Math.min(w, h) * 0.75;
+        const size = Math.floor(Math.min(w, h) * 0.8);
         return { width: size, height: size };
-      },
-      // Removed forced aspect ratio to prevent stretching
-    };
-
-    // 2. Start Scanning
-    const startScanner = async () => {
-      try {
-        await html5QrCode?.start(
-          { facingMode: "environment" },
-          config,
-          (decodedText) => {
-            if (decodedText.includes("upi://pay")) {
-              const urlParams = new URLSearchParams(decodedText.split('?')[1]);
-              setShopUpi(urlParams.get('pa') || "");
-              const pn = urlParams.get('pn');
-              if (pn) setShopName(decodeURIComponent(pn));
-              
-              // Immediate feedback then close
-              handleCloseScanner();
-            }
-          },
-          () => {} // Silent for scan frames
-        );
-      } catch (err) {
-        console.error("Camera Start Error:", err);
       }
     };
 
-    // Small timeout ensures the modal is fully visible before camera starts
-    const timer = setTimeout(startScanner, 300);
-    return () => clearTimeout(timer);
+    html5QrCode.start(
+      { facingMode: "environment" },
+      config,
+      (decodedText) => {
+        if (decodedText.includes("upi://pay")) {
+          const urlParams = new URLSearchParams(decodedText.split('?')[1]);
+          setShopUpi(urlParams.get('pa') || "");
+          const pn = urlParams.get('pn');
+          if (pn) setShopName(decodeURIComponent(pn));
+          
+          // Use the variable here safely
+          html5QrCode?.stop().then(() => setIsQRScannerOpen(false));
+        }
+      },
+      () => {} 
+    ).catch((err) => console.error("Scanner start failed", err));
   }
 
-  function handleCloseScanner() {
-    if (html5QrCode?.isScanning) {
-      html5QrCode.stop().then(() => {
-        setIsQRScannerOpen(false);
-      }).catch(e => console.error(e));
-    } else {
-      setIsQRScannerOpen(false);
-    }
-  }
-
+  // 3. The Cleanup Function
   return () => {
-    if (html5QrCode) {
-      html5QrCode.stop().catch(() => {});
+    // Check if it exists AND if it is currently scanning before stopping
+    if (html5QrCode && html5QrCode.isScanning) {
+      html5QrCode.stop().catch(e => console.error("Cleanup failed", e));
     }
   };
 }, [isQRScannerOpen]);

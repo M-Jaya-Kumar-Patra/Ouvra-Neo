@@ -7,6 +7,9 @@ import { groq } from "@/lib/groq";
 import Transaction from "../models/Transaction";
 import User from "../models/User";
 import { auth } from "@/auth";
+import { predictCategory } from "./ai.actions";
+
+
 
 interface ParticipantInput {
   name: string;
@@ -19,12 +22,16 @@ export async function createSplitRecord(data: any) {
   try {
     await connectToDatabase();
 
-    // 1. Get current user
     const session = await auth();
     if (!session?.user?.id) throw new Error("Unauthorized");
     const myId = session.user.id;
 
-    // 2. Create the main Split record for tracking participants
+    // --- NEW: Predict Category before creating transactions ---
+    // If the user provided a description, we predict. Otherwise, default to "Bill Split".
+    const predictedCategory = data.description 
+      ? await predictCategory(data.description) 
+      : "Bill Split";
+
     const newSplit = await Split.create({
       userId: myId,
       description: data.description,
@@ -39,21 +46,21 @@ export async function createSplitRecord(data: any) {
       })),
     });
 
-    // 3. Create ONE Master Transaction (The full bill you paid)
-    // This is what will show as -₹1000 in your Recent Activity
+    // 3. Create ONE Master Transaction
     const masterTransaction = Transaction.create({
       splitId: newSplit._id,
       userId: myId,
       creatorId: myId,
       amount: Number(data.totalAmount),
-      description: data.description ? `Paid for ${data.description}` : "Group Bill Paid",
+      // --- FIXED: Use the actual description Jaya entered ---
+      description: data.description || "Group Bill Paid", 
       type: "expense",
       status: "completed",
-      category: "Bill Split", // This keeps it visible in the main feed
+      // --- FIXED: Use the AI predicted category ---
+      category: predictedCategory, 
     });
 
-    // 4. Create "Debt Tracking" Transactions for everyone else
-    // These are for the "To Receive" logic, not for the main activity feed
+    // 4. Create "Debt Tracking" Transactions
     const debtPromises = data.participants
       .filter((p: any) => p.userId !== myId && p.name.toLowerCase() !== "you")
       .map((p: any) => {
@@ -63,17 +70,17 @@ export async function createSplitRecord(data: any) {
           creatorId: myId,
           guestName: p.name,
           amount: Number(p.amount),
-          description: `Owed for ${data.description}`,
+          // --- FIXED: More natural description ---
+          description: data.description ? `Owed: ${data.description}` : "Owed for Split",
           type: "owed_to_me",
           status: "pending",
-          category: "Debt Tracking", // Use this to hide it from Recent Activity
+          category: "Debt Tracking", 
         });
       });
 
-    // Execute all database writes
     await Promise.all([masterTransaction, ...debtPromises]);
 
-    // 5. Update YOUR balance (Deduct the full bill)
+    // 5. Update Balance
     await User.findByIdAndUpdate(myId, {
       $inc: { balance: -Number(data.totalAmount) },
     });
