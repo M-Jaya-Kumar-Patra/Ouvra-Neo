@@ -47,41 +47,66 @@ useEffect(() => {
 
   
   useEffect(() => {
-    if (isQRScannerOpen) {
-      const html5QrCode = new Html5Qrcode("qr-reader");
-      const config = { 
-        fps: 20, 
-        qrbox: (w: number, h: number) => {
-          const minEdge = Math.min(w, h);
-          const size = Math.floor(minEdge * 0.8);
-          return { width: size, height: size };
-        },
-        aspectRatio: 1.777778 
-      };
+  let html5QrCode: Html5Qrcode | null = null;
 
-      html5QrCode.start(
-        { facingMode: "environment" },
-        config,
-        (decodedText) => {
-          if (decodedText.includes("upi://pay")) {
-            const urlParams = new URLSearchParams(decodedText.split('?')[1]);
-            setShopUpi(urlParams.get('pa') || "");
-            const pn = urlParams.get('pn');
-            if (pn) setShopName(decodeURIComponent(pn));
-            html5QrCode.stop().then(() => setIsQRScannerOpen(false));
-          }
-        },
-        () => {} // Silent failure for non-QR frames
-      ).catch((err) => console.error("Scanner start failed", err));
+  if (isQRScannerOpen) {
+    // 1. Initialize instance
+    html5QrCode = new Html5Qrcode("qr-reader");
+    
+    const config = { 
+      fps: 15, // Reduced slightly for better processing on mid-range phones
+      qrbox: (w: number, h: number) => {
+        const size = Math.min(w, h) * 0.75;
+        return { width: size, height: size };
+      },
+      // Removed forced aspect ratio to prevent stretching
+    };
 
-      return () => {
-        if (html5QrCode.isScanning) {
-          html5QrCode.stop().catch(e => console.error("Cleanup failed", e));
-        }
-      };
+    // 2. Start Scanning
+    const startScanner = async () => {
+      try {
+        await html5QrCode?.start(
+          { facingMode: "environment" },
+          config,
+          (decodedText) => {
+            if (decodedText.includes("upi://pay")) {
+              const urlParams = new URLSearchParams(decodedText.split('?')[1]);
+              setShopUpi(urlParams.get('pa') || "");
+              const pn = urlParams.get('pn');
+              if (pn) setShopName(decodeURIComponent(pn));
+              
+              // Immediate feedback then close
+              handleCloseScanner();
+            }
+          },
+          () => {} // Silent for scan frames
+        );
+      } catch (err) {
+        console.error("Camera Start Error:", err);
+      }
+    };
+
+    // Small timeout ensures the modal is fully visible before camera starts
+    const timer = setTimeout(startScanner, 300);
+    return () => clearTimeout(timer);
+  }
+
+  function handleCloseScanner() {
+    if (html5QrCode?.isScanning) {
+      html5QrCode.stop().then(() => {
+        setIsQRScannerOpen(false);
+      }).catch(e => console.error(e));
+    } else {
+      setIsQRScannerOpen(false);
     }
-  }, [isQRScannerOpen]);
+  }
 
+  return () => {
+    if (html5QrCode) {
+      html5QrCode.stop().catch(() => {});
+    }
+  };
+}, [isQRScannerOpen]);
 
   // --- INVOICE IMAGE SCANNER ---
   const handleScanInvoice = async (e: React.ChangeEvent<HTMLInputElement>) => {
