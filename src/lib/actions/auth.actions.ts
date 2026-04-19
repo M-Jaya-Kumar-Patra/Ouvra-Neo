@@ -59,7 +59,7 @@ export async function deleteUserAccount() {
   const session = await auth();
   
   if (!session?.user?.id) {
-    throw new Error("Unauthorized: Authentication required for this action.");
+    throw new Error("Unauthorized: Authentication required.");
   }
 
   await connectToDatabase();
@@ -67,26 +67,19 @@ export async function deleteUserAccount() {
 
   try {
     // 1. Cascading Deletion
-    // We target all collections where this user is the owner/creator
     await Promise.all([
-      // Delete splits where user is the primary payer
       Split.deleteMany({ userId: userId }), 
-      
-      // Delete transactions where user is the creator
       Transaction.deleteMany({ creatorId: userId }),
-      
-      // Note: Vaults are embedded in your UserSchema, 
-      // so deleting the User automatically deletes their vaults.
     ]);
 
     // 2. Permanent User Removal
     await User.findByIdAndDelete(userId);
 
-    // 3. Session Termination
-    await signOut({ redirectTo: "/login" });
+    // 3. RETURN SUCCESS (Crucial for TypeScript)
+    return { success: true };
     
   } catch (error) {
     console.error("ACCOUNT_DELETION_ERROR:", error);
-    throw new Error("Failed to purge account data. Please try again.");
+    return { success: false, error: "Failed to purge account data." };
   }
 }

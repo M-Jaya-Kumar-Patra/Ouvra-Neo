@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Trash2, Loader2, AlertTriangle } from "lucide-react";
 import { deleteUserAccount } from "@/lib/actions/auth.actions";
+import { Button } from "@/components/ui/button";
+import { Loader2, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,22 +19,28 @@ import {
 export function DeleteAccountButton() {
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleDelete = async () => {
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault(); 
     setIsLoading(true);
+
     try {
-      // 1. Run the server-side wipe
-      await deleteUserAccount();
-      
-      /* 2. FORCE RELOAD & REDIRECT
-        Using window.location.href instead of router.push() 
-        is the "secret sauce" here. It forces the browser to 
-        discard all cached user data and perform a clean 
-        redirect to the login page.
-      */
-      window.location.href = "/login"; 
-      
+      const result = await deleteUserAccount();
+
+      // TypeScript now recognizes 'success' because result isn't 'never'
+      if (result?.success) {
+        // Clear local storage for a clean slate
+        window.localStorage.clear();
+        window.sessionStorage.clear();
+
+        // This triggers the automatic reload and sends them to login
+        // Use replace so they can't go "back" to the dashboard
+        window.location.replace("/login"); 
+      } else {
+        console.error(result?.error);
+        setIsLoading(false);
+      }
     } catch (error) {
-      console.error("Deletion failed", error);
+      console.error("Deletion failed:", error);
       setIsLoading(false);
     }
   };
@@ -44,38 +50,41 @@ export function DeleteAccountButton() {
       <AlertDialogTrigger asChild>
         <Button 
           variant="ghost" 
-          className="w-full justify-start gap-2 text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 h-11 font-bold rounded-xl transition-all"
+          className="w-full justify-start gap-2 text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 h-11 font-bold rounded-xl"
         >
           <Trash2 size={16} />
           Delete Account
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent className="bg-zinc-950 border-zinc-800 text-white">
+
+      <AlertDialogContent className="bg-zinc-950 border-zinc-800 text-white rounded-[2rem]">
         <AlertDialogHeader>
-          <div className="h-12 w-12 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500 mb-2">
-            <AlertTriangle size={24} />
-          </div>
-          <AlertDialogTitle className="text-xl font-bold text-white">
-            Terminate Account?
-          </AlertDialogTitle>
-          <AlertDialogDescription className="text-zinc-400">
-            This action is **irreversible**. All your transactions, vaults, and split bills will be permanently wiped from the Ouvra-Neo mainframe.
+          <AlertDialogTitle className="text-xl font-bold">Terminate Account?</AlertDialogTitle>
+          <AlertDialogDescription className="text-zinc-500">
+            This will permanently delete your profile and all associated data from Ouvra-Neo. 
+            This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="mt-4">
-          <AlertDialogCancel className="bg-zinc-900 border-zinc-800 text-white hover:bg-zinc-800 rounded-xl">
+        <AlertDialogFooter>
+          <AlertDialogCancel className="bg-zinc-900 border-zinc-800 rounded-xl hover:bg-zinc-800 text-white">
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction
-      onClick={(e) => {
-        e.preventDefault(); // Prevents the dialog from closing too early
-        handleDelete();
-      }}
-      disabled={isLoading}
-      className="bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl"
-    >
-      {isLoading ? <Loader2 className="animate-spin h-4 w-4" /> : "Confirm Deletion"}
-    </AlertDialogAction>
+          
+          {/* THE TRIGGER BUTTON */}
+          <Button
+            onClick={handleDelete}
+            disabled={isLoading}
+            className="bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl min-w-[120px]"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Purging...
+              </>
+            ) : (
+              "Confirm Delete"
+            )}
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
