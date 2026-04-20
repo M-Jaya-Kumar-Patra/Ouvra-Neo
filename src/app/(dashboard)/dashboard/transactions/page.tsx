@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { TransactionFilters } from "@/components/transactions/TransactionFilters";
 import { TransactionList } from "@/components/transactions/TransactionList";
 import { ExportMenu } from "@/components/transactions/ExportMenu";
-import { auth } from "@/auth";
+import { auth } from "../../../../auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Transaction from "@/lib/models/Transaction";
 

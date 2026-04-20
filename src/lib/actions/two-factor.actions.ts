@@ -3,7 +3,7 @@
 import speakeasy from "speakeasy";
 import QRCode from "qrcode";
 import User from "@/lib/models/User";
-import { auth } from "@/auth";
+import { auth } from "../../auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import { revalidatePath } from "next/cache";
 

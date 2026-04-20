@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import speakeasy from 'speakeasy';
 import Transaction from "@/lib/models/Transaction";
 import Split from "@/lib/models/Split"; 
-import { auth, signOut } from "@/auth"; // Ensure you import signOut from your auth config
+import { auth, signOut } from "../../auth"; // Ensure you import signOut from your auth config
 
 
 

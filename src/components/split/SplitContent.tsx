@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { auth } from "../../auth";
 import { BillSplitter } from "@/components/dashboard/BillSplitter";
 import { getRecentSplits } from "@/lib/actions/split.actions";
 import { History, ArrowRight } from "lucide-react";

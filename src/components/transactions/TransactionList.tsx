@@ -1,5 +1,5 @@
 // components/transactions/TransactionList.tsx
-import { auth } from "@/auth";
+import { auth } from "../../auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Transaction from "@/lib/models/Transaction";
 import { RecentTransactions } from "@/components/dashboard/RecentTransactions";

@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { auth } from "../../auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/lib/models/User";
 import Transaction from "@/lib/models/Transaction";

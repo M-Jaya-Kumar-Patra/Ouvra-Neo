@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { auth } from "../../../auth";
 import { WalletOverview } from "@/components/dashboard/WalletOverview";
 import { getWalletSummary } from "@/lib/actions/split.actions";
 import { Suspense } from "react";

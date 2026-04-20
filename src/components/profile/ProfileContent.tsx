@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { auth } from "../../auth";
 import { LogOut, ShieldCheck, Mail, Globe, Lock, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SignOutButton } from "@/components/shared/SignOutButton"; // Recommended: Move logic to a client component

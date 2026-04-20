@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/auth";
+import { auth } from "../../auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import User from "@/lib/models/User";
 import { revalidatePath } from "next/cache";

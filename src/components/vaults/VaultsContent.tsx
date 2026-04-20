@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { auth } from "../../auth";
 import User from "@/lib/models/User";
 import { connectToDatabase } from "@/lib/mongodb";
 import { VaultCard } from "@/components/dashboard/VaultCard";

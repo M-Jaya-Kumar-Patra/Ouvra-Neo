@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import Sidebar from '@/components/shared/Sidebar';
-import { auth } from "@/auth";
+import { auth } from "../../auth";
 import { redirect } from "next/navigation";
 import User from "@/lib/models/User";
 import Transaction from "@/lib/models/Transaction";

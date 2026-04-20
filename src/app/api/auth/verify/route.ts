@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { auth } from "../../../../auth";
 import { NextResponse } from "next/server";
 import speakeasy from "speakeasy";
 import User from "@/lib/models/User";

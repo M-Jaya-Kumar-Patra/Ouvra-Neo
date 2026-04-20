@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { groq } from "@/lib/groq";
 import Transaction from "../models/Transaction";
 import User from "../models/User";
-import { auth } from "@/auth";
+import { auth } from "../../auth";
 import { predictCategory } from "./ai.actions";
 
 

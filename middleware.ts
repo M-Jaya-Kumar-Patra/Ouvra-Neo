@@ -1,37 +1,39 @@
-import NextAuth from "next-auth";
-import { authConfig } from "@/auth.config";
+import { auth } from "@/auth";
 import { NextResponse } from "next/server";
-
-const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
 
-  const is2FAEnabled = req.auth?.user?.is2FAEnabled;
-  const is2FAVerified = req.auth?.user?.is2FAVerified;
+  const isLoggedIn = !!req.auth?.user;
 
-  // 2FA check
-  if (isLoggedIn && is2FAEnabled && !is2FAVerified) {
-    if (nextUrl.pathname !== "/auth/verify-2fa") {
-      return NextResponse.redirect(new URL("/auth/verify-2fa", nextUrl));
-    }
-  }
+  const pathname = nextUrl.pathname;
 
-  // Protected routes
+  // 🔒 Protected routes
   const isProtectedPath =
-    nextUrl.pathname.startsWith("/dashboard") ||
-    nextUrl.pathname.startsWith("/profile") ||
-    nextUrl.pathname.startsWith("/split");
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/profile") ||
+    pathname.startsWith("/split");
 
+  // 🔓 Public auth pages
+  const isAuthPage =
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register");
+
+  // 🚫 If NOT logged in → block protected routes
   if (isProtectedPath && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", nextUrl));
+  }
+
+  // 🚫 If logged in → block login/register page
+  if (isAuthPage && isLoggedIn) {
+    return NextResponse.redirect(new URL("/dashboard", nextUrl));
   }
 
   return NextResponse.next();
 });
 
-// matcher
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+  ],
 };

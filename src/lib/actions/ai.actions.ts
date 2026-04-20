@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/auth";
+import { auth } from "../../auth";
 import Transaction from "@/lib/models/Transaction";
 import User from "@/lib/models/User";
 import { connectToDatabase } from "@/lib/mongodb";
