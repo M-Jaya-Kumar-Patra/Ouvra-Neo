@@ -185,70 +185,75 @@ export function BillSplitter({ userId }: { userId: string }) {
   const isMobile = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   const handleAction = () => {
-    if (isFormInvalid) return;
+  if (isFormInvalid) return;
 
-    startTransition(async () => {
-      try {
-        const allParticipants = [
-          {
-            name: "You",
-            amount: Number(myAmount),
-            upiId: "",
-            userId: userId,
-          },
-          ...friends.map((f) => ({
-            name: f.name || "Friend",
-            amount: Number(f.amount),
-            upiId: f.upiId || "",
-            userId: f.userId || "",
-          })),
-        ];
+  startTransition(async () => {
+    try {
+      const allParticipants = [
+        {
+          name: "You",
+          amount: Number(myAmount),
+          upiId: "",
+          userId: userId,
+        },
+        ...friends.map((f) => ({
+          name: f.name || "Friend",
+          amount: Number(f.amount),
+          upiId: f.upiId || "",
+          userId: f.userId || "",
+        })),
+      ];
 
-        const result = await createSplitRecord({
-          userId,
-          totalAmount: totalNum,
-          description,
-          merchantUpi: shopUpi,
-          merchantName: shopName,
-          merchantCode: merchantCode,
-          participants: allParticipants,
-        });
+      const result = await createSplitRecord({
+        userId,
+        totalAmount: totalNum,
+        description,
+        merchantUpi: shopUpi,
+        merchantName: shopName,
+        merchantCode: merchantCode,
+        participants: allParticipants,
+      });
 
-        if (result?._id) {
-          if (isPaymentReady && isMobile()) {
-            // FIX: Define these variables inside the function scope
-            const formattedTotal = Number(total).toFixed(2);
-            const transactionId = `ON${Date.now()}`;
-            const encodedName = encodeURIComponent(shopName || "Merchant");
-            
-            // Build the query
-            let upiQuery = `pa=${shopUpi}&pn=${encodedName}&am=${formattedTotal}&cu=INR&tr=${transactionId}&tn=${encodeURIComponent(description || "Ouvra Neo Split")}`;
-            
-            // Add merchant code if it exists, otherwise default to 0000
-            upiQuery += `&mc=${merchantCode || "0000"}`;
+      if (result?._id) {
+        if (isPaymentReady && isMobile()) {
+          // 1. Prepare clean variables
+          const formattedAmount = Number(total).toFixed(2);
+          const transactionId = `ON${Date.now()}${Math.floor(Math.random() * 1000)}`;
+          const encodedName = encodeURIComponent(shopName || "Merchant");
+          const encodedNote = encodeURIComponent(description || "Ouvra Neo Split");
 
-            const isAndroid = /Android/i.test(navigator.userAgent);
+          // 2. Build the "Strong" Query (Bypasses many bank filters)
+          let upiQuery = `pa=${shopUpi}` +
+                         `&pn=${encodedName}` +
+                         `&am=${formattedAmount}` +
+                         `&cu=INR` +
+                         `&tr=${transactionId}` + 
+                         `&tn=${encodedNote}`;
 
-            if (isAndroid) {
-              // FIX: Removed 'package=...' so it triggers the App Chooser
-              window.location.href = `intent://pay?${upiQuery}#Intent;scheme=upi;S.browser_fallback_url=${encodeURIComponent(window.location.origin + "/manage-split/" + result._id)};end`;
-            } else {
-              window.location.href = `upi://pay?${upiQuery}`;
+          // Use detected merchant code or fallback to 5411 (Retail) for better approval rates
+          upiQuery += `&mc=${merchantCode || "5411"}`;
 
-              setTimeout(() => {
-                window.location.href = `/manage-split/${result._id}`;
-              }, 3000);
-            }
+          const isAndroid = /Android/i.test(navigator.userAgent);
+
+          if (isAndroid) {
+            // No 'package=' means it will ask to choose the app
+            window.location.href = `intent://pay?${upiQuery}#Intent;scheme=upi;S.browser_fallback_url=${encodeURIComponent(window.location.origin + "/manage-split/" + result._id)};end`;
           } else {
-            window.location.href = `/manage-split/${result._id}`;
+            window.location.href = `upi://pay?${upiQuery}`;
+            setTimeout(() => {
+              window.location.href = `/manage-split/${result._id}`;
+            }, 3000);
           }
+        } else {
+          window.location.href = `/manage-split/${result._id}`;
         }
-      } catch (error) {
-        console.error("Splitter Error:", error);
-        alert("Error saving record.");
       }
-    });
-  };
+    } catch (error) {
+      console.error("Splitter Error:", error);
+      alert("Error saving record.");
+    }
+  });
+};
 
   const handleQRFileScan = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
