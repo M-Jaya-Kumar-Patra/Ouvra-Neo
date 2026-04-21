@@ -45,3 +45,41 @@ body {
 #qr-reader__scan_region {
   background: transparent !important;
 }
+
+
+
+@layer utilities {
+  /* Makes the logo drift up and down slightly */
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Passes a light streak over the logo every 2 seconds */
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+  }
+
+  /* Slow spin for the outer ring */
+  .animate-spin-slow {
+    animation: spin 4s linear infinite;
+  }
+
+  /* Gentle pulse for the background glow */
+  .animate-pulse-gentle {
+    animation: pulse-gentle 2s ease-in-out infinite;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+@keyframes pulse-gentle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.1); }
+}

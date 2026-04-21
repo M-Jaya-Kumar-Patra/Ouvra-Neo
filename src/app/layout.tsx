@@ -40,9 +40,8 @@ export default function RootLayout({
     >
       {/* Selection:bg-indigo-500 adds that pro touch when highlighting text */}
       <body className="min-h-full flex flex-col bg-black text-white selection:bg-indigo-500/30">
-        <Providers>
+        
           {children}
-        </Providers>
       </body>
     </html>
   );

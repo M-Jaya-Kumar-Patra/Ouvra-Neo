@@ -1,13 +1,11 @@
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
-import RegisterClient from "./RegisterClient";
+import { Suspense } from "react";
+import RegisterWrapper from "./RegisterWrapper";
+import { NeoLoader } from "@/components/ui/NeoLoader";
 
-export default async function Page() {
-  const session = await auth();
-
-  if (session) {
-    redirect("/dashboard");
-  }
-
-  return <RegisterClient />;
+export default function Page() {
+  return (
+    <Suspense fallback={<NeoLoader label = "Loading..." fullScreen/>}>
+      <RegisterWrapper />
+    </Suspense>
+  );
 }

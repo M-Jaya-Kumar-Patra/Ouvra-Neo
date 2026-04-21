@@ -183,8 +183,10 @@ const handleAction = () => {
       if (result?._id) {
         // SCENARIO A: Payment Info exists AND user is on Mobile
         if (isPaymentReady && isMobile()) {
-          const upiUrl = `upi://pay?pa=${shopUpi}&pn=${encodeURIComponent(shopName || "Merchant")}&am=${total}&cu=INR&tn=${encodeURIComponent(description)}`;
-          
+          // Force the amount to 2 decimal places (e.g., 500 becomes 500.00)
+const formattedTotal = Number(total).toFixed(2);
+
+const upiUrl = `upi://pay?pa=${shopUpi}&pn=${encodeURIComponent(shopName || "Merchant")}&am=${formattedTotal}&cu=INR&tn=${encodeURIComponent(description)}`;
           // Launch the payment app
           window.location.href = upiUrl;
 
