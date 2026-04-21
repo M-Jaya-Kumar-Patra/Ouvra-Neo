@@ -124,6 +124,7 @@ const progressPercent = totalLent > 0 ? (totalSettled / totalLent) * 100 : 100;
                 amount={split.totalAmount}
                 merchantUpi={split.merchantUpi}
                 merchantName={split.merchantName || "Merchant"}
+                merchantCode={split.merchantCode} // Add this line
               />
             </div>
           </div>
