@@ -21,6 +21,7 @@ const SplitSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
   merchantUpi: { type: String, default: "" },
 merchantName: { type: String, default: "" },
+merchantCode: { type: String },
 });
 
 const Split = models.Split || model("Split", SplitSchema);
