@@ -218,33 +218,36 @@
       });
 
       if (result?._id) {
-        if (isPaymentReady && isMobile()) {
-          const formattedTotal = Number(total).toFixed(2);
-          const transactionId = `ON${Date.now()}`;
-          
-          let finalUpiUrl = "";
-          
-          // Universal UPI Protocol logic
-          if (shopUpi.includes("upi://pay")) {
-            const url = new URL(shopUpi.replace("upi://pay", "https://pay"));
-            url.searchParams.set("am", formattedTotal);
-            url.searchParams.set("cu", "INR");
-            url.searchParams.set("tr", transactionId);
-            url.searchParams.set("tn", description || "Ouvra Neo Split");
-            finalUpiUrl = url.toString().replace("https://pay", "upi://pay");
-          } else {
-            finalUpiUrl = `upi://pay?pa=${shopUpi}&pn=${encodeURIComponent(shopName)}&am=${formattedTotal}&cu=INR&tr=${transactionId}&tn=${encodeURIComponent(description)}`;
-            if (merchantCode) finalUpiUrl += `&mc=${merchantCode}`;
-          }
+        // ... inside result._id check
+if (isPaymentReady && isMobile()) {
+  const formattedTotal = Number(total).toFixed(2);
+  const transactionId = `ON${Date.now()}`;
+  const note = encodeURIComponent(description || "Ouvra Neo Split");
+  
+  // 1. Build the base UPI query
+  let upiQuery = `pa=${shopUpi}&pn=${encodeURIComponent(shopName)}&am=${formattedTotal}&cu=INR&tr=${transactionId}&tn=${note}`;
+  if (merchantCode) upiQuery += `&mc=${merchantCode}`;
 
-          window.location.href = finalUpiUrl;
+  const rawUpiUrl = `upi://pay?${upiQuery}`;
 
-          setTimeout(() => {
-            window.location.href = `/manage-split/${result._id}`;
-          }, 2500);
-        } else {
-          window.location.href = `/manage-split/${result._id}`;
-        }
+  // 2. Android Intent vs iOS/Universal link
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  
+  if (isAndroid) {
+    // Intent scheme is more stable on Android Chrome
+    window.location.href = `intent://pay?${upiQuery}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;S.browser_fallback_url=${encodeURIComponent(window.location.origin + '/manage-split/' + result._id)};end`;
+  } else {
+    // iOS/General fallback
+    window.location.href = rawUpiUrl;
+    
+    // Fallback redirect for iOS/others if the app doesn't take over completely
+    setTimeout(() => {
+      window.location.href = `/manage-split/${result._id}`;
+    }, 3000);
+  }
+} else {
+  window.location.href = `/manage-split/${result._id}`;
+}
       }
     } catch (error) {
       console.error("Splitter Error:", error);
