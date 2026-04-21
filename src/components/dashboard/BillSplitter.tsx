@@ -189,29 +189,50 @@
 
   startTransition(async () => {
     try {
-      // ... (your existing createSplitRecord logic)
-      const result = await createSplitRecord({ /* ... your params */ });
+      // 1. Explicitly build the participants array
+      const allParticipants = [
+        { 
+          name: "You", 
+          amount: Number(myAmount), 
+          upiId: "", 
+          userId: userId // Ensure this is not undefined
+        },
+        ...friends.map((f) => ({
+          name: f.name || "Friend",
+          amount: Number(f.amount),
+          upiId: f.upiId || "",
+          userId: f.userId || "",
+        })),
+      ];
+
+      // 2. Call the action with explicitly named keys
+      const result = await createSplitRecord({
+        userId,
+        totalAmount: totalNum,
+        description,
+        merchantUpi: shopUpi,
+        merchantName: shopName,
+        // Make sure your backend split.actions.ts is updated to accept merchantCode
+        merchantCode: merchantCode, 
+        participants: allParticipants, 
+      });
 
       if (result?._id) {
         if (isPaymentReady && isMobile()) {
           const formattedTotal = Number(total).toFixed(2);
           const transactionId = `ON${Date.now()}`;
-
-          // THE MAGIC FIX: 
-          // If shopUpi contains the full "upi://pay..." string from the scanner, 
-          // we parse it to keep ALL original merchant security flags.
+          
           let finalUpiUrl = "";
           
+          // Universal UPI Protocol logic
           if (shopUpi.includes("upi://pay")) {
-            const url = new URL(shopUpi.replace("upi://pay", "https://pay")); // Temp transform to use URL API
+            const url = new URL(shopUpi.replace("upi://pay", "https://pay"));
             url.searchParams.set("am", formattedTotal);
             url.searchParams.set("cu", "INR");
             url.searchParams.set("tr", transactionId);
             url.searchParams.set("tn", description || "Ouvra Neo Split");
-            
             finalUpiUrl = url.toString().replace("https://pay", "upi://pay");
           } else {
-            // Fallback for manually typed UPI IDs
             finalUpiUrl = `upi://pay?pa=${shopUpi}&pn=${encodeURIComponent(shopName)}&am=${formattedTotal}&cu=INR&tr=${transactionId}&tn=${encodeURIComponent(description)}`;
             if (merchantCode) finalUpiUrl += `&mc=${merchantCode}`;
           }
@@ -226,8 +247,8 @@
         }
       }
     } catch (error) {
-      console.error(error);
-      alert("Error saving record.");
+      console.error("Splitter Error:", error);
+      alert("Error saving record. Check the server console.");
     }
   });
 };
