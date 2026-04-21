@@ -17,3 +17,4 @@ export const authConfig: NextAuthConfig = {
   session: { strategy: "jwt" },
   secret: process.env.NEXTAUTH_SECRET,
 };
+
