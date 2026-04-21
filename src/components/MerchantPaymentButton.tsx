@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ShoppingBag, X, Smartphone, ExternalLink } from "lucide-react";
+import { ShoppingBag, X, Smartphone } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 
 interface MerchantPaymentProps {
   amount: number;
   merchantUpi: string;
   merchantName: string;
-  merchantCode?: string; // Added this
+  merchantCode?: string;
 }
 
 export function MerchantPaymentButton({ amount, merchantUpi, merchantName, merchantCode }: MerchantPaymentProps) {
@@ -19,40 +19,30 @@ export function MerchantPaymentButton({ amount, merchantUpi, merchantName, merch
     setIsMounted(true);
   }, []);
 
+  const upiUrl = `upi://pay?pa=${merchantUpi}&pn=${encodeURIComponent(merchantName)}&am=${amount.toFixed(2)}&cu=INR${merchantCode ? `&mc=${merchantCode}` : ''}`;
+
   const handlePayment = (e: React.MouseEvent) => {
     e.preventDefault();
-    e.stopPropagation();
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-    const formattedAmount = Number(amount).toFixed(2);
-    const transactionId = `TXN${Date.now()}`;
-    const encodedName = encodeURIComponent(merchantName);
-    
-    // Base UPI parameters
-    let upiQuery = `pa=${merchantUpi}&pn=${encodedName}&am=${formattedAmount}&cu=INR&tr=${transactionId}`;
-    if (merchantCode) upiQuery += `&mc=${merchantCode}`;
-
-    const upiUrl = `upi://pay?${upiQuery}`;
-
-    const isAndroid = /Android/i.test(navigator.userAgent);
-    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-    if (isAndroid) {
-      // Android Intent: Forces the app selector and is more reliable than window.location
-      window.location.href = `intent://pay?${upiQuery}#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;S.browser_fallback_url=${encodeURIComponent(window.location.href)};end`;
-    } else if (isIOS) {
-      // iOS: Standard deep link works better here, but requires user gesture
-      window.location.href = upiUrl;
+    if (isMobile) {
+      // Use the Intent scheme for Android to show the App Chooser
+      const isAndroid = /Android/i.test(navigator.userAgent);
+      if (isAndroid) {
+        window.location.href = `intent://pay?${upiUrl.split('?')[1]}#Intent;scheme=upi;S.browser_fallback_url=${encodeURIComponent(window.location.href)};end`;
+      } else {
+        window.location.href = upiUrl;
+      }
     } else {
       setShowDesktopModal(true);
     }
   };
 
-  if (!isMounted) return <div className="w-full py-3 bg-zinc-900 rounded-xl animate-pulse" />;
+  if (!isMounted) return null;
 
   return (
     <>
       <button
-        type="button"
         onClick={handlePayment}
         className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-indigo-500/20"
       >
@@ -63,23 +53,34 @@ export function MerchantPaymentButton({ amount, merchantUpi, merchantName, merch
       {showDesktopModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
           <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-[2.5rem] max-w-sm w-full relative text-center">
-            <button onClick={() => setShowDesktopModal(false)} className="absolute top-6 right-6 text-zinc-500">
+            <button 
+              onClick={() => setShowDesktopModal(false)} 
+              className="absolute top-6 right-6 text-zinc-500 hover:text-white"
+            >
               <X size={24} />
             </button>
 
-            <div className="bg-white p-4 rounded-3xl inline-block mb-6">
+            {/* QR CONTAINER: Forces a white background and padding for easy scanning */}
+            <div className="bg-white p-6 rounded-3xl inline-block mb-6 shadow-2xl">
+              {/* Force the SVG to render only when the modal is open */}
               <QRCodeSVG 
-                value={`upi://pay?pa=${merchantUpi}&pn=${encodeURIComponent(merchantName)}&am=${amount}&cu=INR${merchantCode ? `&mc=${merchantCode}` : ''}`} 
-                size={200} 
+                value={upiUrl} 
+                size={220} 
                 level="H" 
+                includeMargin={false}
               />
             </div>
 
-            <h3 className="text-xl font-bold mb-2">Scan to Pay</h3>
-            <p className="text-zinc-400 text-sm mb-6">Open GPay, PhonePe, or Paytm to pay ₹{amount}</p>
-            
-            <button onClick={() => setShowDesktopModal(false)} className="w-full py-3 bg-zinc-800 rounded-xl">
-              Done
+            <h3 className="text-xl font-bold text-white mb-2">Scan to Pay</h3>
+            <p className="text-zinc-400 text-sm mb-6 leading-relaxed">
+              Open <strong>GPay, PhonePe, or Paytm</strong> on your phone to complete payment.
+            </p>
+
+            <button
+              onClick={() => setShowDesktopModal(false)}
+              className="w-full py-3 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl font-medium"
+            >
+              Close
             </button>
           </div>
         </div>
