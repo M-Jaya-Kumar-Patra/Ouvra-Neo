@@ -223,12 +223,11 @@ export function BillSplitter({ userId }: { userId: string }) {
           const encodedNote = encodeURIComponent(description || "Ouvra Neo Split");
 
           // 2. Build the "Strong" Query (Bypasses many bank filters)
-          let upiQuery = `pa=${shopUpi}` +
-                         `&pn=${encodedName}` +
-                         `&am=${formattedAmount}` +
-                         `&cu=INR` +
-                         `&tr=${transactionId}` + 
-                         `&tn=${encodedNote}`;
+          let upiQuery =
+  `pa=${encodeURIComponent(shopUpi)}` +
+  `&pn=${encodeURIComponent(shopName)}` +
+  `&am=${formattedAmount}` +
+  `&cu=INR`;
 
           // Use detected merchant code or fallback to 5411 (Retail) for better approval rates
           upiQuery += `&mc=${merchantCode || "5411"}`;
