@@ -17,29 +17,35 @@ export default function LoginClient() {
   const router = useRouter();
 
   const handleCredentialsLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-    try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
+  try {
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false, // Keep this false so we can handle the 2FA redirect manually
+    });
 
-      if (result?.error) {
+    if (result?.error) {
+      // Check if the error is actually a 2FA challenge
+      if (result.error === "2FA_REQUIRED") {
+        // Pass the email or a temp token to the verify page via query params
+        router.push(`/auth/verify-2fa?email=${encodeURIComponent(email)}`);
+      } else {
         setError("Invalid email or password");
         setLoading(false);
-      } else {
-        router.push("/dashboard");
-        router.refresh();
       }
-    } catch (err) {
-      setError("An unexpected error occurred");
-      setLoading(false);
+    } else {
+      router.push("/dashboard");
+      router.refresh();
     }
-  };
+  } catch (err) {
+    setError("An unexpected error occurred");
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#09090b] px-4 relative overflow-hidden">
@@ -109,7 +115,7 @@ export default function LoginClient() {
               />
             </div>
             <Button 
-              className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-6 rounded-xl transition-all active:scale-95 shadow-lg shadow-blue-600/20" 
+              className="w-full cursor-pointer bg-blue-600 hover:bg-blue-500 text-white font-bold py-6 rounded-xl transition-all active:scale-95 shadow-lg shadow-blue-600/20" 
               disabled={loading}
             >
               {loading ? "Verifying..." : "Sign In"}
@@ -127,7 +133,7 @@ export default function LoginClient() {
 
           <Button 
             variant="outline" 
-            className="w-full border-zinc-800 bg-transparent hover:bg-zinc-800/50 text-zinc-300 py-6 rounded-xl flex gap-3"
+            className="w-full cursor-pointer border-zinc-800 bg-transparent hover:bg-zinc-800/50 text-zinc-300 py-6 rounded-xl flex gap-3"
             onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
           >
              <svg className="h-5 w-5" viewBox="0 0 24 24">

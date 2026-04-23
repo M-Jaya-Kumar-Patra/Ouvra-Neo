@@ -106,25 +106,27 @@ export function RecentTransactions({
 </div>
 
                 {/* Amount & Round-up */}
-                <div className="text-right shrink-0">
-                  <div className={cn(
-                    "text-base md:text-xl font-bold transition-all duration-300 group-hover:scale-105 origin-right",
-                    t.type === 'income' ? 'text-emerald-400' :
-                    t.type === 'owed_to_me' ? 'text-blue-400' : 'text-white'
-                  )}>
-                    {t.type === 'income' ? '+' : t.type === 'owed_to_me' ? '→' : '-'} ₹{t.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                  </div>
+                {/* Amount & Round-up */}
+<div className="text-right shrink-0 flex flex-col items-end">
+  <div className={cn(
+    "text-base md:text-xl font-bold transition-all duration-300 group-hover:scale-105 origin-right",
+    t.type === 'income' ? 'text-emerald-400' :
+    t.type === 'owed_to_me' ? 'text-blue-400' : 'text-white'
+  )}>
+    {t.type === 'income' ? '+' : t.type === 'owed_to_me' ? '→' : '-'} ₹{t.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+  </div>
 
-                  {t.roundUpAmount > 0 && (
-                    <div className="flex justify-end">
-                      <span className="inline-flex items-center rounded-full bg-blue-500/10 px-1.5 py-0.5 
-                                      text-[8px] md:text-[10px] font-medium text-blue-400 border border-blue-500/20 
-                                      mt-0.5 md:mt-1 transition-all duration-500 group-hover:bg-blue-500/20">
-                        +₹{t.roundUpAmount.toFixed(2)} saved
-                      </span>
-                    </div>
-                  )}
-                </div>
+
+  {/* Automated Round-up Tag */}
+  {t.roundUpAmount > 0 && (
+    <div className="mt-1 flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-blue-500/5 border border-blue-500/10 group-hover:border-blue-500/30 group-hover:bg-blue-500/10 transition-all duration-300">
+      <div className="w-1 h-1 rounded-full bg-blue-400 animate-pulse" />
+      <span className="text-[9px] md:text-[11px] font-black italic tracking-tighter text-blue-400 uppercase">
+        +₹{t.roundUpAmount.toFixed(2)} Round-up
+      </span>
+    </div>
+  )}
+</div>
               </div>
             ))
           )}

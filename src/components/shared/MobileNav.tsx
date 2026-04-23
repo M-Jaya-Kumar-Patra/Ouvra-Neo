@@ -13,6 +13,8 @@ const navItems = [
   { name: 'Profile', href: '/profile', icon: UserCircle },
 ];
 
+// ... existing imports
+
 export function MobileNav() {
   const pathname = usePathname();
 
@@ -20,14 +22,19 @@ export function MobileNav() {
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[100] bg-[#09090b]/90 backdrop-blur-2xl border-t border-zinc-800/50 px-4 pb-6 pt-3">
       <div className="flex justify-between items-center max-w-md mx-auto">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          // MODIFIED LOGIC:
+          // 1. Check for exact match
+          // 2. OR: If we are on /profile, highlight it
+          // 3. OR: If we are on /settings and the current item is /profile, highlight it
+          const isSettings = pathname?.startsWith('/settings');
+          const isActive = pathname === item.href || (isSettings && item.href === '/profile');
+
           return (
             <Link 
               key={item.href} 
               href={item.href} 
-              className="flex flex-col items-center gap-1.5 min-w-[64px] transition-transform active:scale-90"
+              className="relative flex flex-col items-center gap-1.5 min-w-[64px] transition-transform active:scale-90"
             >
-              {/* Increased Icon size to 24 and added better background scaling */}
               <div className={cn(
                 "p-2.5 rounded-2xl transition-all duration-300",
                 isActive 
@@ -37,7 +44,6 @@ export function MobileNav() {
                 <item.icon size={24} strokeWidth={isActive ? 2.5 : 2} />
               </div>
               
-              {/* Increased text size to xs (12px) and bolded it */}
               <span className={cn(
                 "text-[11px] font-bold tracking-wide uppercase transition-colors",
                 isActive ? "text-blue-400" : "text-zinc-500"
@@ -45,10 +51,7 @@ export function MobileNav() {
                 {item.name}
               </span>
 
-              {/* Active Indicator Dot */}
-              {isActive && (
-                <div className="absolute -bottom-1 h-1 w-1 rounded-full bg-blue-400" />
-              )}
+              
             </Link>
           );
         })}

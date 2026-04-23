@@ -1,9 +1,10 @@
 import { auth } from "../../auth";
-import { LogOut, ShieldCheck, Mail, Globe, Lock, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { LogOut, ShieldCheck, Mail, Globe, Lock, ChevronRight, Settings, UserCog } from "lucide-react";
 import { SignOutButton } from "@/components/shared/SignOutButton"; // Recommended: Move logic to a client component
 import Link from "next/link";
 import { DeleteAccountButton } from "../shared/DeleteAccountButton";
+
+
 
 export async function ProfileContent() {
   const session = await auth();
@@ -39,20 +40,35 @@ export async function ProfileContent() {
         </div>
       </div>
 
-      <Link href="/settings/security" className="block group">
-  <div className="p-5 bg-gradient-to-r from-blue-600/10 to-transparent border border-blue-500/20 rounded-2xl flex items-center justify-between hover:border-blue-500/40 transition-all active:scale-[0.98]">
-    <div className="flex items-center gap-4">
-      <div className="h-12 w-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
-        <Lock size={20} />
-      </div>
-      <div>
-        <h4 className="text-sm font-bold text-white">Security Protocol</h4>
-        <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">Configure 2FA & Session Keys</p>
-      </div>
-    </div>
-    <ChevronRight className="text-zinc-600 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
-  </div>
-</Link>
+      <Link href="/settings" className="block group">
+        <div className="p-5 bg-gradient-to-r from-emerald-600/10 to-transparent border border-emerald-500/20 rounded-2xl flex items-center justify-between hover:border-emerald-500/40 transition-all active:scale-[0.98]">
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:rotate-12 transition-transform">
+              <Settings size={22} />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-white">Control Center</h4>
+              <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">Manage Persona & Round-ups</p>
+            </div>
+          </div>
+          <ChevronRight className="text-zinc-600 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" />
+        </div>
+      </Link>
+
+     <Link href="/settings/security" className="block group">
+        <div className="p-5 bg-gradient-to-r from-blue-600/10 to-transparent border border-blue-500/20 rounded-2xl flex items-center justify-between hover:border-blue-500/40 transition-all active:scale-[0.98]">
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
+              <Lock size={20} />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-white">Security Protocol</h4>
+              <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-medium">Configure 2FA & Session Keys</p>
+            </div>
+          </div>
+          <ChevronRight className="text-zinc-600 group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
+        </div>
+      </Link>
 
       {/* Security Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -38,47 +38,51 @@ export async function addTransaction(formData: FormData) {
   await connectToDatabase();
   const userId = session.user.id;
 
-  // ... inside addTransaction ...
-
-// 1. Check if the user has a Round-Up Vault enabled
-const userDoc = await User.findById(userId).lean();
-
-// Specify the type here instead of 'any'
-const hasActiveVault = (userDoc?.vaults as IVault[])?.some((v) => v.roundUpEnabled);
-
+  // 1. Fetch User and Profile settings
+  const userDoc = await User.findById(userId).lean();
   
+  // Get the rule from profile (Default to 1 if not set)
+  const roundUpRule = userDoc?.profile?.roundUpRule || 1;
+  const isEnabledGlobally = userDoc?.profile?.isRoundUpEnabled ?? true;
+  
+  // Check if any vault is actually listening for round-ups
+  const hasActiveVault = (userDoc?.vaults as IVault[])?.some((v) => v.roundUpEnabled);
 
-  // 3. Calculate Round Up
+  // 2. Calculate Round Up based on the Rule (₹1, ₹10, ₹50, etc.)
   let roundUpAmount = 0;
-  if (validated.type === "expense" && hasActiveVault) {
-    const change = validated.amount % 1;
-    if (change > 0) {
-      roundUpAmount = Number((1 - change).toFixed(2));
-    }
+  if (validated.type === "expense" && isEnabledGlobally && hasActiveVault) {
+    const amount = validated.amount;
+    
+    // Logic: Find the next multiple of the rule
+    // Example: Amount 42, Rule 10 -> Math.ceil(42/10)*10 = 50. 50 - 42 = 8 saved.
+    const nextMultiple = Math.ceil(amount / roundUpRule) * roundUpRule;
+    
+    // If the amount is already a multiple (e.g., 50), 
+    // most fintechs round to the NEXT multiple (60) to ensure a save occurs.
+    const finalTarget = nextMultiple === amount ? amount + roundUpRule : nextMultiple;
+    
+    roundUpAmount = Number((finalTarget - amount).toFixed(2));
   }
 
-  // 2. Create Transaction
+  // 3. Create Transaction
   await Transaction.create({
-  userId,
-  creatorId: userId, // Fix: satisfying the required creatorId field
-  ...validated,
-  category: validated.category || "General",
-  roundUpAmount: roundUpAmount,
-  // Ensure the type is correctly set for the new enum
-  type: validated.type === "expense" ? "expense" : "income" 
-});
+    userId,
+    creatorId: userId,
+    ...validated,
+    category: validated.category || "General",
+    roundUpAmount: roundUpAmount,
+    type: validated.type
+  });
 
-  // 4. Atomic Balance Update
-  // We use .toFixed(2) then Number() to kill floating point math bugs
-  const netAdjustment = validated.type === "income" 
-    ? validated.amount 
-    : -Number((validated.amount + roundUpAmount).toFixed(2));
+  // 4. Update Balance (Transaction + RoundUp)
+  const totalDeduction = Number((validated.amount + roundUpAmount).toFixed(2));
+  const netAdjustment = validated.type === "income" ? validated.amount : -totalDeduction;
 
   await User.findByIdAndUpdate(userId, {
     $inc: { balance: netAdjustment }
   });
 
-  // 5. Move spare change to Vault
+  // 5. Move spare change to the specific Vault marked for Round-Up
   if (roundUpAmount > 0) {
     await User.updateOne(
       { _id: userId, "vaults.roundUpEnabled": true },
@@ -87,7 +91,7 @@ const hasActiveVault = (userDoc?.vaults as IVault[])?.some((v) => v.roundUpEnabl
   }
 
   revalidatePath("/dashboard");
-  revalidatePath("/vaults"); // Keep both pages in sync
+  revalidatePath("/vaults");
 }
 
 

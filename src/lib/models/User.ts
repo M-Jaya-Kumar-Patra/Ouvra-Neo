@@ -34,11 +34,19 @@ const UserSchema = new mongoose.Schema(
     ],
   
   profile: {
-    occupation: { type: String, default: 'General User' },
-    monthlyBudget: { type: Number, default: 0 },
-    financialGoal: { type: String, default: 'Stability' },
-    isProfileComplete: { type: Boolean, default: false } // Safety flag
-  },
+      occupation: { type: String, default: 'General User' },
+      monthlyBudget: { type: Number, default: 0 },
+      financialGoal: { type: String, default: 'Stability' },
+      isProfileComplete: { type: Boolean, default: false },
+      
+      // --- NEW ROUND-UP SETTINGS ---
+      isRoundUpEnabled: { type: Boolean, default: true },
+      roundUpRule: { 
+        type: Number, 
+        enum: [1, 5, 10, 50, 100], 
+        default: 10 
+      }, 
+    },
   },
   { timestamps: true },
 );

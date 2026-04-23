@@ -23,7 +23,7 @@ export function PersonaForm({ initialData }: { initialData: any }) {
 
   return (
     <Card className="bg-zinc-900/50 border-zinc-800 rounded-[2.5rem] overflow-hidden">
-      <CardHeader className="border-b border-zinc-800/50 p-8">
+      <CardHeader className="border-b border-zinc-800/50 p-4 md:p-8">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-blue-500/10 rounded-lg">
             <UserCircle className="text-blue-500" size={24} />
@@ -35,11 +35,11 @@ export function PersonaForm({ initialData }: { initialData: any }) {
         </div>
       </CardHeader>
 
-      <CardContent className="p-8">
-        <form action={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <CardContent className="p-4 md:p-8">
+        <form action={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
           
           {/* Occupation */}
-          <div className="space-y-3">
+          <div className="space-y-2 md:space-y-3">
             <label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
               Current Occupation
             </label>

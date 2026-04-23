@@ -27,3 +27,21 @@ export async function updatePersona(formData: FormData) {
   revalidatePath("/dashboard/settings");
   revalidatePath("/dashboard"); // To update the AI Insights immediately
 }
+
+
+
+export async function updateRoundUpAction(rule: number, enabled: boolean) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  await connectToDatabase();
+  
+  await User.findByIdAndUpdate(session.user.id, {
+    $set: {
+      "profile.roundUpRule": rule,
+      "profile.isRoundUpEnabled": enabled
+    }
+  });
+
+  revalidatePath("/dashboard/settings");
+}

@@ -16,6 +16,7 @@ const TransactionSchema = new mongoose.Schema({
   }, 
   
   amount: { type: Number, required: true },
+  roundUpAmount: { type: Number, default: 0 },
   description: { type: String, required: true },
   category: { type: String, default: "Bill Split" },
   
