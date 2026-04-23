@@ -237,7 +237,7 @@ export function BillSplitter({ userId }: { userId: string }) {
 
           if (isAndroid) {
             // No 'package=' means it will ask to choose the app
-           window.location.href = `intent://upi/pay?${upiQuery}#Intent;scheme=upi;end`;
+           window.location.href = `intent://pay?${upiQuery}#Intent;scheme=upi;end`;
            } else {
             window.location.href = `upi://pay?${upiQuery}`;
             setTimeout(() => {
