@@ -224,9 +224,9 @@ export function BillSplitter({ userId }: { userId: string }) {
 
           // 2. Build the "Strong" Query (Bypasses many bank filters)
           let upiQuery = new URLSearchParams({
-  pa: shopUpi.trim(),
-  pn: shopName.trim(),
-  am: formattedAmount,
+  pa: "9348516167@ibl",  // <-- your real UPI
+  pn: "Test",
+  am: "1.00",
   cu: "INR",
 }).toString();
 
