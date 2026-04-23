@@ -237,7 +237,7 @@ export function BillSplitter({ userId }: { userId: string }) {
 
           if (isAndroid) {
             // No 'package=' means it will ask to choose the app
-            window.location.href = `intent://pay?${upiQuery}#Intent;scheme=upi;S.browser_fallback_url=${encodeURIComponent(window.location.origin + "/manage-split/" + result._id)};end`;
+            window.location.href = `intent://upi/pay?${upiQuery}#Intent;scheme=upi;S.browser_fallback_url=${encodeURIComponent(window.location.origin + "/manage-split/" + result._id)};end`;
           } else {
             window.location.href = `upi://pay?${upiQuery}`;
             setTimeout(() => {

@@ -29,7 +29,7 @@ export function MerchantPaymentButton({ amount, merchantUpi, merchantName, merch
       // Use the Intent scheme for Android to show the App Chooser
       const isAndroid = /Android/i.test(navigator.userAgent);
       if (isAndroid) {
-        window.location.href = `intent://pay?${upiUrl.split('?')[1]}#Intent;scheme=upi;S.browser_fallback_url=${encodeURIComponent(window.location.href)};end`;
+        window.location.href = `intent://upi/pay?${upiUrl.split('?')[1]}#Intent;scheme=upi;S.browser_fallback_url=${encodeURIComponent(window.location.href)};end`;
       } else {
         window.location.href = upiUrl;
       }
@@ -44,7 +44,7 @@ export function MerchantPaymentButton({ amount, merchantUpi, merchantName, merch
     <>
       <button
         onClick={handlePayment}
-        className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-indigo-500/20"
+        className="w-full px-2 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-indigo-500/20"
       >
         <ShoppingBag size={18} />
         Pay {merchantName} ₹{amount}
