@@ -176,8 +176,7 @@ async function DashboardContent({
         });
       }
       return acc;
-    }, [])
-    .slice(-7);
+    }, []);
 
   const formattedBalance = new Intl.NumberFormat("en-US", {
     style: "currency",
