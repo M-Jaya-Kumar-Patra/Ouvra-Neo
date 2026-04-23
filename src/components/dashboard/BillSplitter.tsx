@@ -223,11 +223,12 @@ export function BillSplitter({ userId }: { userId: string }) {
           const encodedNote = encodeURIComponent(description || "Ouvra Neo Split");
 
           // 2. Build the "Strong" Query (Bypasses many bank filters)
-          let upiQuery =
-  `pa=${encodeURIComponent(shopUpi)}` +
-  `&pn=${encodeURIComponent(shopName)}` +
-  `&am=${formattedAmount}` +
-  `&cu=INR`;
+          let upiQuery = new URLSearchParams({
+  pa: shopUpi.trim(),
+  pn: shopName.trim(),
+  am: formattedAmount,
+  cu: "INR",
+}).toString();
 
           // Use detected merchant code or fallback to 5411 (Retail) for better approval rates
           if (merchantCode) {
@@ -236,8 +237,12 @@ export function BillSplitter({ userId }: { userId: string }) {
           const isAndroid = /Android/i.test(navigator.userAgent);
 
           if (isAndroid) {
-            // No 'package=' means it will ask to choose the app
-           window.location.href = `intent://pay?${upiQuery}#Intent;scheme=upi;end`;
+
+            const fallback = `${window.location.origin}/manage-split/${result._id}`;
+
+window.location.href =
+  `intent://upi/pay?${upiQuery}` +
+  `#Intent;scheme=upi;S.browser_fallback_url=${encodeURIComponent(fallback)};end`;
            } else {
             window.location.href = `upi://pay?${upiQuery}`;
             setTimeout(() => {
