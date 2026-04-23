@@ -237,12 +237,13 @@ export function BillSplitter({ userId }: { userId: string }) {
           const isAndroid = /Android/i.test(navigator.userAgent);
 
           if (isAndroid) {
+            const upiLink = `upi://pay?${upiQuery}`;
+ window.location.href = upiLink;
 
-            const fallback = `${window.location.origin}/manage-split/${result._id}`;
-
-window.location.href =
-  `intent://upi/pay?${upiQuery}` +
-  `#Intent;scheme=upi;S.browser_fallback_url=${encodeURIComponent(fallback)};end`;
+  // // Fallback to intent if app chooser not shown
+  // setTimeout(() => {
+  //   window.location.href = `intent://pay?${upiQuery}#Intent;scheme=upi;end`;
+  // }, 1200);
            } else {
             window.location.href = `upi://pay?${upiQuery}`;
             setTimeout(() => {
