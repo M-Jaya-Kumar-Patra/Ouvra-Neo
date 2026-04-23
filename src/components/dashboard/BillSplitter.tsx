@@ -214,43 +214,43 @@ export function BillSplitter({ userId }: { userId: string }) {
         participants: allParticipants,
       });
 
-      if (result?._id) {
-        if (isPaymentReady && isMobile()) {
-          // 1. Prepare clean variables
-          const formattedAmount = Number(total).toFixed(2);
-          const transactionId = `ON${Date.now()}${Math.floor(Math.random() * 1000)}`;
-          const encodedName = encodeURIComponent(shopName || "Merchant");
-          const encodedNote = encodeURIComponent(description || "Ouvra Neo Split");
+      if (!result?._id) return;
 
-          // 2. Build the "Strong" Query (Bypasses many bank filters)
-          const upiQuery = new URLSearchParams({
-  pa: shopUpi.trim(),
-  pn: shopName.trim(),
-  am: formattedAmount,
-  cu: "INR",
-}).toString();
+      // 👉 If payment not needed → just redirect
+      if (!isPaymentReady || !isMobile()) {
+        window.location.href = `/manage-split/${result._id}`;
+        return;
+      }
 
-          // Use detected merchant code or fallback to 5411 (Retail) for better approval rates
-          
-          const isAndroid = /Android/i.test(navigator.userAgent);
+      // ✅ Build clean UPI query (NO mc)
+      const formattedAmount = Number(total).toFixed(2);
 
-          if (isAndroid) {
-            const upiLink = `upi://pay?${upiQuery}`;
- window.location.href = upiLink;
+      const upiQuery = new URLSearchParams({
+        pa: shopUpi.trim(),
+        pn: shopName.trim(),
+        am: formattedAmount,
+        cu: "INR",
+      }).toString();
 
-  // // Fallback to intent if app chooser not shown
-  // setTimeout(() => {
-  //   window.location.href = `intent://pay?${upiQuery}#Intent;scheme=upi;end`;
-  // }, 1200);
-           } else {
-            window.location.href = `upi://pay?${upiQuery}`;
-            setTimeout(() => {
-              window.location.href = `/manage-split/${result._id}`;
-            }, 3000);
-          }
-        } else {
+      const upiLink = `upi://pay?${upiQuery}`;
+      const isAndroid = /Android/i.test(navigator.userAgent);
+
+      if (isAndroid) {
+        // 🔥 Step 1: Try direct UPI
+        window.location.href = upiLink;
+
+        // 🔥 Step 2: Fallback → app chooser
+        setTimeout(() => {
+          window.location.href = `intent://pay?${upiQuery}#Intent;scheme=upi;end`;
+        }, 1200);
+      } else {
+        // 🍏 iOS
+        window.location.href = upiLink;
+
+        // fallback redirect after payment attempt
+        setTimeout(() => {
           window.location.href = `/manage-split/${result._id}`;
-        }
+        }, 3000);
       }
     } catch (error) {
       console.error("Splitter Error:", error);
