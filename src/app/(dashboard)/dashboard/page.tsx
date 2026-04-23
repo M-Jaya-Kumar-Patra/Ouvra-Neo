@@ -140,7 +140,6 @@ async function DashboardContent({
       category: { $ne: "Debt Tracking" }, // Hide individual friend shares from the main feed
     })
       .sort({ date: -1 })
-      .limit(10)
       .lean(),
     getWalletSummary(session.user.id),
   ]);
@@ -253,6 +252,8 @@ async function DashboardContent({
         <div className="lg:col-span-4 w-full overflow-hidden ">
           <TransactionChartWrapper data={chartData} />
         </div>
+
+
 
         {/* Recent Activity: 3/7 on lg */}
         <div className="lg:col-span-3 h-full">

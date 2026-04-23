@@ -9,64 +9,62 @@ import { groq } from "@/lib/groq";
 export async function getAIInsight() {
   try {
     const session = await auth();
-    if (!session?.user?.id) return "Login to see AI insights.";
+    if (!session?.user?.id) return "Login for AI insights.";
 
     await connectToDatabase();
 
     const [dbUser, recentTransactions] = await Promise.all([
-      User.findById(session.user.id).select("balance").lean(),
-      Transaction.find({ userId: session.user.id })
-        .sort({ date: -1 })
-        .limit(60) 
-        .lean()
+      User.findById(session.user.id).select("balance profile").lean(),
+      Transaction.find({ userId: session.user.id }).sort({ date: -1 }).limit(60).lean()
     ]);
 
-    if (!recentTransactions || recentTransactions.length === 0) {
-      return "Add some transactions so I can analyze your wealth patterns!";
-    }
+    if (!recentTransactions?.length) return "Add transactions for AI analysis!";
 
-    const currentBalance = dbUser?.balance ?? 0;
-    const today = new Date().toLocaleDateString();
-    
-    // Use ₹ symbol in the data summary sent to AI
+    // 1. FALLBACK LOGIC
+    const profile = dbUser?.profile || {};
+    const occupation = profile.occupation || "General User";
+    const budget = profile.monthlyBudget; // Default baseline
+    const isCustom = profile.isProfileComplete;
+
     const dataSummary = recentTransactions
-      .map((t) => `[${new Date(t.date).toLocaleDateString()}] ${t.type}: ₹${t.amount} - ${t.description} (${t.category})`)
+      .map((t) => `[${new Date(t.date).toLocaleDateString()}] ${t.type}: ₹${t.amount} - ${t.description}`)
       .join("\n");
 
+    // 2. CONTEXTUAL PROMPT
     const systemMessage = `
-      You are Ouvra Neo's Wealth Co-Pilot. 
-      CRITICAL RULES:
-      1. CURRENCY: Always use the Indian Rupee symbol (₹). NEVER use $.
-      2. BREVITY: Maximum 30 words total. Be punchy and direct.
-      3. FOCUS: Identify one urgent pattern (Subscriptions, Duplicates, or High Spending).
-      4. TONE: Elite financial advisor.
-    `;
+  You are Ouvra Neo's Elite Wealth Co-Pilot. 
+  
+  CONTEXT:
+  - User: ${occupation} ${isCustom ? "" : "(Default Profile)"}
+  - Monthly Limit: ₹${budget}
+  - Focus: Optimization of wealth for a ${occupation} lifestyle.
 
-    const prompt = `
-      Current Date: ${today}
-      Balance: ₹${currentBalance}
-      History:
-      ${dataSummary}
+  ANALYSIS PROTOCOL:
+  1. Identify if spending is "Essential" (Hostel, Food, Study) vs "Discretionary" based on ${occupation} status.
+  2. If ${occupation} === 'Student', IGNORE small subsistence spends (<₹200). 
+  3. Flag velocity: Is the user spending their ₹${budget} too fast for the current date (${new Date().getDate()}?
+  4. Use "The 50/30/20 Rule" or "Student Budgeting" logic.
 
-      Provide one sharp, urgent insight.
-    `;
+  OUTPUT RULES:
+  - Max 25 words. 
+  - One punchy, high-value insight. 
+  - Tone: Sophisticated, direct, and protective of the user's capital.
+  - ALWAYS use ₹. NEVER use $.
+`;
 
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         { role: "system", content: systemMessage },
-        { role: "user", content: prompt }
+        { role: "user", content: `Balance: ₹${dbUser?.balance}\nHistory:\n${dataSummary}` }
       ],
       model: "llama-3.3-70b-versatile",
-      max_tokens: 60, // Reduced tokens to force a shorter response
+      max_tokens: 50,
       temperature: 0.4, 
     });
 
-    const insight = chatCompletion.choices[0]?.message?.content || "No insight available.";
-    return insight.trim();
-
-  } catch (error: unknown) {
-    console.error("Insight Error:", error);
-    return "Analyzing your wealth patterns... keep recording transactions.";
+    return chatCompletion.choices[0]?.message?.content?.trim() || "Insights pending...";
+  } catch (error) {
+    return "Analyzing patterns...";
   }
 }
 

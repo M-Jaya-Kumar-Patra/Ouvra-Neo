@@ -77,21 +77,33 @@ export function RecentTransactions({
                 )}
               >
                 {/* Description & Category */}
-                <div className="flex flex-col gap-0.5 md:gap-1 min-w-0 pr-2">
-                  <span className="text-sm md:text-lg font-semibold text-zinc-100 group-hover:text-white transition-colors truncate">
-                    {t.description}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] md:text-xs font-medium px-1.5 py-0.5 rounded-md bg-zinc-800 text-zinc-400 shrink-0">
-                      {t.category}
-                    </span>
-                    {t.type === 'owed_to_me' && (
-                      <span className="text-[8px] md:text-[10px] uppercase tracking-wider text-blue-400 font-bold hidden xs:inline-block">
-                        Split
-                      </span>
-                    )}
-                  </div>
-                </div>
+                {/* Description, Category & Date */}
+<div className="flex flex-col gap-0.5 md:gap-1 min-w-0 pr-2">
+  <span className="text-sm md:text-lg font-semibold text-zinc-100 group-hover:text-white transition-colors truncate">
+    {t.description}
+  </span>
+  <div className="flex items-center gap-2 flex-wrap">
+    {/* Category Badge */}
+    <span className="text-[10px] md:text-xs font-medium px-1.5 py-0.5 rounded-md bg-zinc-800 text-zinc-400 shrink-0">
+      {t.category}
+    </span>
+
+    {/* NEW: Date Display */}
+    <span className="text-[10px] md:text-xs text-zinc-500 font-medium">
+      {new Date(t.date).toLocaleDateString('en-IN', { 
+        day: '2-digit', 
+        month: 'short', 
+        year: 'numeric' 
+      })}
+    </span>
+
+    {t.type === 'owed_to_me' && (
+      <span className="text-[8px] md:text-[10px] uppercase tracking-wider text-blue-400 font-bold">
+        Split
+      </span>
+    )}
+  </div>
+</div>
 
                 {/* Amount & Round-up */}
                 <div className="text-right shrink-0">

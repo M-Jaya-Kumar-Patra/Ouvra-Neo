@@ -21,7 +21,7 @@ const navItems = [
   { name: 'Smart Vaults', href: '/vaults', icon: Wallet },
   { name: 'AI Co-Pilot', href: '/insights', icon: Sparkles },
   { name: 'Bill Splitter', href: '/split', icon: Receipt },
-  { name: 'Settings', href: '/settings/security', icon: Settings }, // Link to your 2FA/Security page
+  { name: 'Settings', href: '/settings', icon: Settings }, // Link to your 2FA/Security page
   { name: 'Account', href: '/profile', icon: UserCircle },
 ];
 

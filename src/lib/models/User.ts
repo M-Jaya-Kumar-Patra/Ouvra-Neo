@@ -32,6 +32,13 @@ const UserSchema = new mongoose.Schema(
         createdAt: { type: Date, default: Date.now },
       },
     ],
+  
+  profile: {
+    occupation: { type: String, default: 'General User' },
+    monthlyBudget: { type: Number, default: 0 },
+    financialGoal: { type: String, default: 'Stability' },
+    isProfileComplete: { type: Boolean, default: false } // Safety flag
+  },
   },
   { timestamps: true },
 );
