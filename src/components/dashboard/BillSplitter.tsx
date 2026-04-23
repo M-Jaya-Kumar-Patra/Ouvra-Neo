@@ -223,17 +223,15 @@ export function BillSplitter({ userId }: { userId: string }) {
           const encodedNote = encodeURIComponent(description || "Ouvra Neo Split");
 
           // 2. Build the "Strong" Query (Bypasses many bank filters)
-          let upiQuery = new URLSearchParams({
-  pa: "9348516167@ibl",  // <-- your real UPI
-  pn: "Test",
-  am: "1.00",
+          const upiQuery = new URLSearchParams({
+  pa: shopUpi.trim(),
+  pn: shopName.trim(),
+  am: formattedAmount,
   cu: "INR",
 }).toString();
 
           // Use detected merchant code or fallback to 5411 (Retail) for better approval rates
-          if (merchantCode) {
-  upiQuery += `&mc=${merchantCode}`; // ✅ only then
-}
+          
           const isAndroid = /Android/i.test(navigator.userAgent);
 
           if (isAndroid) {
