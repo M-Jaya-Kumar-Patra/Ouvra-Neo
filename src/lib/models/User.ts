@@ -18,12 +18,8 @@ const UserSchema = new mongoose.Schema(
       },
     ],
 
-    language: { 
-    type: String, 
-    enum: ["English", "Hindi", "Telugu", "Tamil", "Bengali", "Hinglish"], 
-    default: "English" 
-  }, // Added this
-  
+    
+
     aiPreferences: {
       notificationsEnabled: { type: Boolean, default: true },
       riskTolerance: {
@@ -45,6 +41,11 @@ const UserSchema = new mongoose.Schema(
       monthlyBudget: { type: Number, default: 0 },
       financialGoal: { type: String, default: 'Stability' },
       isProfileComplete: { type: Boolean, default: false },
+      language: { 
+        type: String, 
+        enum: ["English", "Hindi", "Telugu", "Tamil", "Bengali", "Hinglish", "Odia"], 
+        default: "English" 
+      },
       
       // --- NEW ROUND-UP SETTINGS ---
       isRoundUpEnabled: { type: Boolean, default: true },

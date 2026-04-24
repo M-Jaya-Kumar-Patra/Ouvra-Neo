@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { UserCircle, Target, Banknote, Save, Languages } from "lucide-react";
-import { updatePersona } from "@/lib/actions/user.actions"; 
-import { toast } from "sonner"; 
+import { updatePersona } from "@/lib/actions/user.actions";
+import { toast } from "sonner";
 
 export function PersonaForm({ initialData }: { initialData: any }) {
   const [isPending, setIsPending] = useState(false);
@@ -29,22 +29,28 @@ export function PersonaForm({ initialData }: { initialData: any }) {
             <UserCircle className="text-blue-500" size={24} />
           </div>
           <div>
-            <CardTitle className="text-xl font-bold text-white">Financial Persona</CardTitle>
-            <p className="text-xs text-zinc-500 uppercase tracking-widest mt-1">AI Personalization</p>
+            <CardTitle className="text-xl font-bold text-white">
+              Financial Persona
+            </CardTitle>
+            <p className="text-xs text-zinc-500 uppercase tracking-widest mt-1">
+              AI Personalization
+            </p>
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="p-4 md:p-8">
-        <form action={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-          
+        <form
+          action={handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8"
+        >
           {/* Occupation */}
           <div className="space-y-2 md:space-y-3">
             <label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
               Current Occupation
             </label>
-            <select 
-              name="occupation" 
+            <select
+              name="occupation"
               defaultValue={initialData?.occupation || "Student"}
               className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none cursor-pointer"
             >
@@ -62,10 +68,12 @@ export function PersonaForm({ initialData }: { initialData: any }) {
               Monthly Budget (Pocket Money/Income)
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500">₹</span>
-              <input 
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500">
+                ₹
+              </span>
+              <input
                 name="monthlyBudget"
-                type="number" 
+                type="number"
                 defaultValue={initialData?.monthlyBudget || 0}
                 placeholder="0.00"
                 className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 pl-8 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
@@ -79,13 +87,14 @@ export function PersonaForm({ initialData }: { initialData: any }) {
               <Languages size={14} className="text-zinc-500" />
               Insight Language
             </label>
-            <select 
-              name="language" 
-              defaultValue={initialData?.language || "English"}
+            <select
+              name="language"
+              defaultValue={initialData?.profile?.language || "English"}
               className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none cursor-pointer"
             >
               <option value="English">English</option>
               <option value="Hindi">Hindi (हिन्दी)</option>
+              <option value="Odia">Odia (ଓଡ଼ିଆ)</option>
               <option value="Telugu">Telugu (తెలుగు)</option>
               <option value="Tamil">Tamil (தமிழ்)</option>
               <option value="Bengali">Bengali (বাংলা)</option>
@@ -95,10 +104,12 @@ export function PersonaForm({ initialData }: { initialData: any }) {
 
           {/* Financial Goal */}
           <div className="">
-            <label className="text-sm font-medium text-zinc-400">Current Financial Goal</label>
-            <input 
+            <label className="text-sm font-medium text-zinc-400">
+              Current Financial Goal
+            </label>
+            <input
               name="financialGoal"
-              type="text" 
+              type="text"
               defaultValue={initialData?.financialGoal || ""}
               placeholder="e.g., Save for a new MacBook"
               className="w-full mt-3 bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
@@ -106,12 +117,14 @@ export function PersonaForm({ initialData }: { initialData: any }) {
           </div>
 
           <div className="md:col-span-2 pt-4">
-            <button 
+            <button
               type="submit"
               disabled={isPending}
               className="w-full cursor-pointer md:w-auto px-8 py-4 bg-white text-black font-bold rounded-2xl hover:bg-zinc-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              {isPending ? "Saving..." : (
+              {isPending ? (
+                "Saving..."
+              ) : (
                 <>
                   <Save size={18} />
                   Save Changes
