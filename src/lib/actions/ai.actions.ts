@@ -20,17 +20,19 @@ export async function getAIInsight() {
 
     if (!recentTransactions?.length) return "Add transactions for AI analysis!";
 
-    // --- 1. CALCULATE REAL MATH (So the AI doesn't have to guess) ---
-    const now = new Date();
-    const fiveDaysAgo = new Date(now.getTime() - (5 * 24 * 60 * 60 * 1000));
-    
-    // Calculate Net Spending (Expenses - Refunds/Income)
-    const netSpend = recentTransactions.reduce((acc, t) => {
-      if (new Date(t.date) < fiveDaysAgo) return acc;
-      // If it's an expense, add it; if it's income/refund, subtract it
-      return t.type === 'expense' ? acc + t.amount : acc - t.amount;
-    }, 0);
+    // --- 1. CALCULATE TOTAL REVENUE VS TOTAL EXPENSE ---
+    let totalSpent = 0;
+    let totalIncome = 0;
 
+    recentTransactions.forEach((t) => {
+      if (t.type === 'expense' || t.type === 'debt') {
+        totalSpent += t.amount;
+      } else {
+        totalIncome += t.amount;
+      }
+    });
+
+    const netImpact = totalIncome - totalSpent;
     const dataSummary = recentTransactions
       .map((t) => `[${t.type.toUpperCase()}] ₹${t.amount}: ${t.description}`)
       .join("\n");
@@ -38,48 +40,72 @@ export async function getAIInsight() {
     const profile = dbUser?.profile || {};
     const occupation = profile.occupation || "Student";
 
-    // --- 2. ELITE PROMPT ---
+    // --- 2. THE "NEO" TOTAL-SIGHT PROMPT ---
     const systemMessage = `
-      You are Ouvra Neo's Elite Wealth Co-Pilot. You do not just list numbers; you provide strategic financial wisdom.
+      You are Ouvra Neo's Elite Wealth Co-Pilot. 
       
-      USER CONTEXT:
-      - Role: ${occupation}
-      - 5-Day Net Spending: ₹${netSpend.toFixed(2)} (This is the TRUTH, use this).
-      - Current Balance: ₹${dbUser?.balance}
+      CORE TRUTHS:
+      - Liquid Balance: ₹${dbUser?.balance}
+      - Total Revenue: ₹${totalIncome}
+      - Total Outflow: ₹${totalSpent}
+      - Career: ${occupation}
 
-      STRATEGIC PROTOCOL:
-      1. CRITICAL: If Net Spend is low (like ₹190), praise their "Capital Preservation."
-      2. REFUND LOGIC: If you see a "Refund" in history, acknowledge the successful recovery of capital.
-      3. STOP THE MATH: Never say "Spending ₹X in Y days." Instead, say "Your runway is [X] days" or "Lfestyle sustainability is [High/Low]."
-      4. DISCOVERY: Mention how small ₹10-₹30 spends are perfect for the "Round-Up" vault.
+      STRATEGIC DIRECTIVE:
+      1. IGNORE specific time windows. Analyze the TOTAL impact of these transactions.
+      2. If Income > Spending, call it "Capital Growth." 
+      3. ADDRESS THE BALANCE: Explain that the current ₹${dbUser?.balance} is the result of their total financial movement.
+      4. REFUND RECOGNITION: Mention how getting money back (Refunds) is a professional management trait.
+      5. NO MATH STRINGS: Never say "Spending ₹X in Y days."
 
       RULES:
-      - Max 22 words. 
-      - Tone: Sophisticated, visionary, and sharp. 
-      - ONE punchy sentence only.
+      - Max 22 words.
+      - Tone: Sharp, high-finance, sophisticated.
+      - Use ₹.
     `;
 
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         { role: "system", content: systemMessage },
-        { role: "user", content: `History:\n${dataSummary}` }
+        { role: "user", content: `Full History Summary:\n${dataSummary}` }
       ],
       model: "llama-3.3-70b-versatile",
-      temperature: 0.2, // Lower temperature = more accuracy
+      temperature: 0.2, 
     });
 
-    return chatCompletion.choices[0]?.message?.content?.trim() || "Analyzing ledger...";
+    return chatCompletion.choices[0]?.message?.content?.trim() || "Insights pending...";
   } catch (error) {
     console.error(error);
-    return "Wealth Co-Pilot is synchronizing...";
+    return "Synchronizing wealth intelligence...";
   }
 }
 
 export async function predictCategory(description: string) {
   if (!description || description.length < 3) return "Other";
 
-  const categories = ["Food", "Transport", "Shopping", "Bills", "Entertainment", "Income", "Education", "Health"];
-
+  const categories = [
+  // Essentials
+  "Food", "Groceries", "Dining Out", "Snacks",
+  "Transport", "Commute", "Fuel", "Rent/PG",
+  "Bills", "Utilities", "Subscription", "Laundry",
+  
+  // Professional & Tech
+  "Education", "Placement Prep", "Software Tools", "Hardware",
+  "Cloud Services", "Domains", "API Credits", "Stationery",
+  
+  // Social & Fintech
+  "Lent / Owed", "Debt Repayment", "Group Split", "Gifts",
+  "Entertainment", "Hobbies", "Party", "Social Hangout",
+  
+  // Wellness
+  "Health", "Fitness", "Personal Care", "Apparel",
+  
+  // Wealth & Income
+  "Income", "Pocket Money", "Refunds", "Rewards",
+  "Savings Vault", "Investment", "Mutual Funds",
+  
+  // Misc
+  "Charity", "Other"
+];
   try {
     const chatCompletion = await groq.chat.completions.create({
       messages: [
