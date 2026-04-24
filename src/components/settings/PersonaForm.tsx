@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { UserCircle, Target, Banknote, Save } from "lucide-react";
-import { updatePersona } from "@/lib/actions/user.actions"; // You'll create this next
-import { toast } from "sonner"; // Or your preferred toast library
+import { UserCircle, Target, Banknote, Save, Languages } from "lucide-react";
+import { updatePersona } from "@/lib/actions/user.actions"; 
+import { toast } from "sonner"; 
 
 export function PersonaForm({ initialData }: { initialData: any }) {
   const [isPending, setIsPending] = useState(false);
@@ -46,7 +46,7 @@ export function PersonaForm({ initialData }: { initialData: any }) {
             <select 
               name="occupation" 
               defaultValue={initialData?.occupation || "Student"}
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none"
+              className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none cursor-pointer"
             >
               <option value="Student">Student</option>
               <option value="Professional">Salaried Professional</option>
@@ -73,15 +73,35 @@ export function PersonaForm({ initialData }: { initialData: any }) {
             </div>
           </div>
 
+          {/* Insight Language Selection */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
+              <Languages size={14} className="text-zinc-500" />
+              Insight Language
+            </label>
+            <select 
+              name="language" 
+              defaultValue={initialData?.language || "English"}
+              className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none cursor-pointer"
+            >
+              <option value="English">English</option>
+              <option value="Hindi">Hindi (हिन्दी)</option>
+              <option value="Telugu">Telugu (తెలుగు)</option>
+              <option value="Tamil">Tamil (தமிழ்)</option>
+              <option value="Bengali">Bengali (বাংলা)</option>
+              <option value="Hinglish">Hinglish (Mix)</option>
+            </select>
+          </div>
+
           {/* Financial Goal */}
-          <div className="space-y-3 md:col-span-2">
+          <div className="">
             <label className="text-sm font-medium text-zinc-400">Current Financial Goal</label>
             <input 
               name="financialGoal"
               type="text" 
               defaultValue={initialData?.financialGoal || ""}
-              placeholder="e.g., Save for a new MacBook, Build Emergency Fund..."
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+              placeholder="e.g., Save for a new MacBook"
+              className="w-full mt-3 bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
             />
           </div>
 

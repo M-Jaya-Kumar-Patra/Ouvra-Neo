@@ -39,6 +39,7 @@ export async function getAIInsight() {
 
     const profile = dbUser?.profile || {};
     const occupation = profile.occupation || "Student";
+    const language = profile.language || "English";
 
     // --- 2. THE "NEO" TOTAL-SIGHT PROMPT ---
     const systemMessage = `
@@ -54,6 +55,13 @@ export async function getAIInsight() {
       2. **NO MATH STRINGS:** Do not write out the calculation (e.g., "₹2107 - ₹376"). Just state the result as a strategic fact.
       3. **SOPHISTICATION:** Use words like "Surplus," "Liquidity," "Fortified," or "Velocity."
       4. **ONE SENTENCE:** Keep it under 22 words. 
+
+      CORE RULES:
+  1. RESPONSE LANGUAGE: You MUST provide the insight in ${language}.
+  2. If language is 'Hinglish', use a natural mix of Hindi and English.
+  3. Keep the tone sophisticated and strategic.
+
+  and also keep the ocupation also in mind . ${occupation}
 
       EXAMPLE OF GOOD INSIGHT:
       "Strategic revenue has fortified your liquidity to ₹1,593, ensuring a stable runway for your upcoming goals."

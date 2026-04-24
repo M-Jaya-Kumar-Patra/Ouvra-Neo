@@ -17,6 +17,13 @@ const UserSchema = new mongoose.Schema(
         roundUpEnabled: { type: Boolean, default: false },
       },
     ],
+
+    language: { 
+    type: String, 
+    enum: ["English", "Hindi", "Telugu", "Tamil", "Bengali", "Hinglish"], 
+    default: "English" 
+  }, // Added this
+  
     aiPreferences: {
       notificationsEnabled: { type: Boolean, default: true },
       riskTolerance: {

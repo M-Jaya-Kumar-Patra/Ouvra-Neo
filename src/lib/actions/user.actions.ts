@@ -12,6 +12,7 @@ export async function updatePersona(formData: FormData) {
   const occupation = formData.get("occupation") as string;
   const monthlyBudget = Number(formData.get("monthlyBudget"));
   const financialGoal = formData.get("financialGoal") as string;
+  const language = formData.get("language") as string;
 
   await connectToDatabase();
 
@@ -20,6 +21,7 @@ export async function updatePersona(formData: FormData) {
       "profile.occupation": occupation,
       "profile.monthlyBudget": monthlyBudget,
       "profile.financialGoal": financialGoal,
+      "profile.language": language, // Save the language choice
       "profile.isProfileComplete": true, // Mark it as complete now
     }
   });

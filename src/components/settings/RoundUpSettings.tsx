@@ -28,7 +28,7 @@ export function RoundUpSettings({ initialEnabled, initialRule }: { initialEnable
   };
 
   return (
-    <Card className="bg-zinc-900/50 border-zinc-800 rounded-[2.5rem] mt-8 overflow-hidden">
+    <Card className="bg-zinc-900/50 border-zinc-800 rounded-[2.5rem]  overflow-hidden">
       <CardHeader className="border-b border-zinc-800/50 p-4 md:p-8">
         <CardTitle className="text-xl font-bold text-white flex items-center gap-3">
           <div className="p-2 bg-emerald-500/10 rounded-lg">
@@ -59,7 +59,7 @@ export function RoundUpSettings({ initialEnabled, initialRule }: { initialEnable
 
         {/* Rule Selection Grid */}
         <div className={cn("space-y-4 transition-all duration-300", !isEnabled && "opacity-40 pointer-events-none grayscale")}>
-          <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">
+          <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1 ">
             Round to nearest
           </label>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">

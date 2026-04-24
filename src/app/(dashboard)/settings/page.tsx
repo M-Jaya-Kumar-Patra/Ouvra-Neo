@@ -16,9 +16,9 @@ async function SettingsContent() {
   const dbUser = await User.findById(session?.user?.id).select("profile email").lean();
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-8 items-start">
       {/* Left Column */}
-      <div className="lg:col-span-2 order-2 lg:order-1 space-y-6">
+      <div className="lg:col-span-2 order-2 lg:order-1 space-y-3 md:space-y-6">
         <PersonaForm initialData={dbUser?.profile} />
         <RoundUpSettings 
           initialEnabled={dbUser?.profile?.isRoundUpEnabled ?? true} 
@@ -27,7 +27,7 @@ async function SettingsContent() {
       </div>
 
       {/* Right Column (Moved inside so session/dbUser are available) */}
-      <div className="space-y-6 order-1 lg:order-2">
+      <div className="space-y-3 order-1 lg:order-2">
         <h2 className="text-sm font-bold text-zinc-500 uppercase tracking-widest px-2">
           System Settings
         </h2>
