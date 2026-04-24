@@ -46,14 +46,14 @@ export function PersonaForm({ initialData }: { initialData: any }) {
           className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8"
         >
           {/* Occupation */}
-          <div className="space-y-2 md:space-y-3">
+          <div className="">
             <label className="text-sm font-medium text-zinc-400">
               Current Occupation
             </label>
             <select
               name="occupation"
               defaultValue={initialData?.occupation || "Student"}
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none cursor-pointer"
+              className="w-full mt-2 md:mt-3 bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none cursor-pointer"
             >
               <option value="Student">Student</option>
               <option value="Professional">Salaried Professional</option>
@@ -64,12 +64,12 @@ export function PersonaForm({ initialData }: { initialData: any }) {
           </div>
 
           {/* Monthly Budget */}
-          <div className="space-y-3">
+          <div className="">
             <label className="text-sm font-medium text-zinc-400">
               Monthly Budget
             </label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500">₹</span>
+            <div className="relative  mt-2 md:mt-3">
+              <span className="absolute  left-4 top-1/2 -translate-y-1/2 text-zinc-500">₹</span>
               <input
                 name="monthlyBudget"
                 type="number"
@@ -81,7 +81,7 @@ export function PersonaForm({ initialData }: { initialData: any }) {
           </div>
 
           {/* Insight Language Selection */}
-          <div className="space-y-3">
+          <div className="">
             <label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
               <Languages size={14} className="text-zinc-500" />
               Insight Language
@@ -89,7 +89,7 @@ export function PersonaForm({ initialData }: { initialData: any }) {
             <select
               name="language"
               defaultValue={initialData?.language || "English"}
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none cursor-pointer"
+              className="w-full  mt-2 md:mt-3 bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none cursor-pointer"
             >
               <option value="English">English</option>
               <option value="Hindi">Hindi (हिन्दी)</option>
@@ -102,7 +102,7 @@ export function PersonaForm({ initialData }: { initialData: any }) {
           </div>
 
           {/* Financial Goal */}
-          <div className="space-y-3">
+          <div className="">
             <label className="text-sm font-medium text-zinc-400">
               Current Financial Goal
             </label>
@@ -111,7 +111,7 @@ export function PersonaForm({ initialData }: { initialData: any }) {
               type="text"
               defaultValue={initialData?.financialGoal || ""}
               placeholder="e.g., Save for a new MacBook"
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+              className="w-full  mt-2 md:mt-3 bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
             />
           </div>
 
