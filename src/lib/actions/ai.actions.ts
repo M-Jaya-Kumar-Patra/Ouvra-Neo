@@ -15,59 +15,65 @@ export async function getAIInsight() {
 
     const [dbUser, recentTransactions] = await Promise.all([
       User.findById(session.user.id).select("balance profile").lean(),
-      Transaction.find({ userId: session.user.id }).sort({ date: -1 }).limit(60).lean()
+      Transaction.find({ userId: session.user.id }).sort({ date: -1 }).limit(30).lean()
     ]);
 
     if (!recentTransactions?.length) return "Add transactions for AI analysis!";
 
-    // 1. FALLBACK LOGIC
-    const profile = dbUser?.profile || {};
-    const occupation = profile.occupation || "General User";
-    const budget = profile.monthlyBudget; // Default baseline
-    const isCustom = profile.isProfileComplete;
+    // --- 1. CALCULATE REAL MATH (So the AI doesn't have to guess) ---
+    const now = new Date();
+    const fiveDaysAgo = new Date(now.getTime() - (5 * 24 * 60 * 60 * 1000));
+    
+    // Calculate Net Spending (Expenses - Refunds/Income)
+    const netSpend = recentTransactions.reduce((acc, t) => {
+      if (new Date(t.date) < fiveDaysAgo) return acc;
+      // If it's an expense, add it; if it's income/refund, subtract it
+      return t.type === 'expense' ? acc + t.amount : acc - t.amount;
+    }, 0);
 
     const dataSummary = recentTransactions
-      .map((t) => `[${new Date(t.date).toLocaleDateString()}] ${t.type}: ₹${t.amount} - ${t.description}`)
+      .map((t) => `[${t.type.toUpperCase()}] ₹${t.amount}: ${t.description}`)
       .join("\n");
 
-    // 2. CONTEXTUAL PROMPT
+    const profile = dbUser?.profile || {};
+    const occupation = profile.occupation || "Student";
+
+    // --- 2. ELITE PROMPT ---
     const systemMessage = `
-  You are Ouvra Neo's Elite Wealth Co-Pilot. 
-  
-  CONTEXT:
-  - User: ${occupation} ${isCustom ? "" : "(Default Profile)"}
-  - Monthly Limit: ₹${budget}
-  - Focus: Optimization of wealth for a ${occupation} lifestyle.
+      You are Ouvra Neo's Elite Wealth Co-Pilot. You do not just list numbers; you provide strategic financial wisdom.
+      
+      USER CONTEXT:
+      - Role: ${occupation}
+      - 5-Day Net Spending: ₹${netSpend.toFixed(2)} (This is the TRUTH, use this).
+      - Current Balance: ₹${dbUser?.balance}
 
-  ANALYSIS PROTOCOL:
-  1. Identify if spending is "Essential" (Hostel, Food, Study) vs "Discretionary" based on ${occupation} status.
-  2. If ${occupation} === 'Student', IGNORE small subsistence spends (<₹200). 
-  3. Flag velocity: Is the user spending their ₹${budget} too fast for the current date (${new Date().getDate()}?
-  4. Use "The 50/30/20 Rule" or "Student Budgeting" logic.
+      STRATEGIC PROTOCOL:
+      1. CRITICAL: If Net Spend is low (like ₹190), praise their "Capital Preservation."
+      2. REFUND LOGIC: If you see a "Refund" in history, acknowledge the successful recovery of capital.
+      3. STOP THE MATH: Never say "Spending ₹X in Y days." Instead, say "Your runway is [X] days" or "Lfestyle sustainability is [High/Low]."
+      4. DISCOVERY: Mention how small ₹10-₹30 spends are perfect for the "Round-Up" vault.
 
-  OUTPUT RULES:
-  - Max 25 words. 
-  - One punchy, high-value insight. 
-  - Tone: Sophisticated, direct, and protective of the user's capital.
-  - ALWAYS use ₹. NEVER use $.
-`;
+      RULES:
+      - Max 22 words. 
+      - Tone: Sophisticated, visionary, and sharp. 
+      - ONE punchy sentence only.
+    `;
 
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         { role: "system", content: systemMessage },
-        { role: "user", content: `Balance: ₹${dbUser?.balance}\nHistory:\n${dataSummary}` }
+        { role: "user", content: `History:\n${dataSummary}` }
       ],
       model: "llama-3.3-70b-versatile",
-      max_tokens: 50,
-      temperature: 0.4, 
+      temperature: 0.2, // Lower temperature = more accuracy
     });
 
-    return chatCompletion.choices[0]?.message?.content?.trim() || "Insights pending...";
+    return chatCompletion.choices[0]?.message?.content?.trim() || "Analyzing ledger...";
   } catch (error) {
-    return "Analyzing patterns...";
+    console.error(error);
+    return "Wealth Co-Pilot is synchronizing...";
   }
 }
-
 
 export async function predictCategory(description: string) {
   if (!description || description.length < 3) return "Other";
