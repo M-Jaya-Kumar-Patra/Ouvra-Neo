@@ -48,19 +48,18 @@ export async function getAIInsight() {
       - Liquid Balance: ₹${dbUser?.balance}
       - Total Revenue: ₹${totalIncome}
       - Total Outflow: ₹${totalSpent}
-      - Career: ${occupation}
 
-      STRATEGIC DIRECTIVE:
-      1. IGNORE specific time windows. Analyze the TOTAL impact of these transactions.
-      2. If Income > Spending, call it "Capital Growth." 
-      3. ADDRESS THE BALANCE: Explain that the current ₹${dbUser?.balance} is the result of their total financial movement.
-      4. REFUND RECOGNITION: Mention how getting money back (Refunds) is a professional management trait.
-      5. NO MATH STRINGS: Never say "Spending ₹X in Y days."
+      STRICT OUTPUT RULES:
+      1. **NO EQUATIONS:** Never use minus signs (-), plus signs (+), or equals (=) in your text. 
+      2. **NO MATH STRINGS:** Do not write out the calculation (e.g., "₹2107 - ₹376"). Just state the result as a strategic fact.
+      3. **SOPHISTICATION:** Use words like "Surplus," "Liquidity," "Fortified," or "Velocity."
+      4. **ONE SENTENCE:** Keep it under 22 words. 
 
-      RULES:
-      - Max 22 words.
-      - Tone: Sharp, high-finance, sophisticated.
-      - Use ₹.
+      EXAMPLE OF GOOD INSIGHT:
+      "Strategic revenue has fortified your liquidity to ₹1,593, ensuring a stable runway for your upcoming goals."
+      
+      EXAMPLE OF BAD INSIGHT (DO NOT DO THIS):
+      "₹2107 - ₹376 = ₹1731, now ₹1593."
     `;
 
     const chatCompletion = await groq.chat.completions.create({
@@ -69,7 +68,7 @@ export async function getAIInsight() {
         { role: "user", content: `Full History Summary:\n${dataSummary}` }
       ],
       model: "llama-3.3-70b-versatile",
-      temperature: 0.2, 
+      temperature: 0.1, 
     });
 
     return chatCompletion.choices[0]?.message?.content?.trim() || "Insights pending...";
