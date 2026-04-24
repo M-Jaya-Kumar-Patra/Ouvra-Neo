@@ -13,8 +13,7 @@ export async function updatePersona(formData: FormData) {
   const occupation = formData.get("occupation") as string;
   const monthlyBudget = Number(formData.get("monthlyBudget"));
   const financialGoal = formData.get("financialGoal") as string;
-  const language = formData.get("language") as string; // <-- ADD THIS LINE
-
+  const language = formData.get("language") as string;
   await connectToDatabase();
 
   // 2. Update the database call to include the language
@@ -23,7 +22,7 @@ export async function updatePersona(formData: FormData) {
       "profile.occupation": occupation,
       "profile.monthlyBudget": monthlyBudget,
       "profile.financialGoal": financialGoal,
-      "profile.language": language, // <-- ADD THIS LINE
+      "profile.language": language, 
       "profile.isProfileComplete": true,
     }
   });

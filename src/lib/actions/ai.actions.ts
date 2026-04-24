@@ -59,7 +59,9 @@ export async function getAIInsight() {
       CORE RULES:
   1. RESPONSE LANGUAGE: You MUST provide the insight in ${language}.
   2. If language is 'Hinglish', use a natural mix of Hindi and English.
-  3. Keep the tone sophisticated and strategic.
+  3. If language is 'Odia', use a Odia language and also return the text in odia.
+  4. for each lanuage return the text in corresponding language.
+  5. Keep the tone sophisticated and strategic.
 
   and also keep the ocupation also in mind . ${occupation}
 

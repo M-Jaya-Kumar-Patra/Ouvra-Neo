@@ -1,24 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useTransition } from "react"; // 1. Import useTransition
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { UserCircle, Target, Banknote, Save, Languages } from "lucide-react";
+import { UserCircle, Save, Languages, Loader } from "lucide-react";
 import { updatePersona } from "@/lib/actions/user.actions";
 import { toast } from "sonner";
 
 export function PersonaForm({ initialData }: { initialData: any }) {
-  const [isPending, setIsPending] = useState(false);
+  // 2. Use isPending from useTransition instead of useState
+  const [isPending, startTransition] = useTransition();
 
   async function handleSubmit(formData: FormData) {
-    setIsPending(true);
-    try {
-      await updatePersona(formData);
-      toast.success("Persona updated! AI insights will now be more precise.");
-    } catch (error) {
-      toast.error("Failed to update profile.");
-    } finally {
-      setIsPending(false);
-    }
+    // 3. Wrap the action in startTransition
+    startTransition(async () => {
+      try {
+        await updatePersona(formData);
+        toast.success("Persona updated! AI insights will now be more precise.");
+      } catch (error) {
+        toast.error("Failed to update profile.");
+      }
+    });
   }
 
   return (
@@ -46,7 +47,7 @@ export function PersonaForm({ initialData }: { initialData: any }) {
         >
           {/* Occupation */}
           <div className="space-y-2 md:space-y-3">
-            <label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
+            <label className="text-sm font-medium text-zinc-400">
               Current Occupation
             </label>
             <select
@@ -64,13 +65,11 @@ export function PersonaForm({ initialData }: { initialData: any }) {
 
           {/* Monthly Budget */}
           <div className="space-y-3">
-            <label className="text-sm font-medium text-zinc-400 flex items-center gap-2">
-              Monthly Budget (Pocket Money/Income)
+            <label className="text-sm font-medium text-zinc-400">
+              Monthly Budget
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500">
-                ₹
-              </span>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500">₹</span>
               <input
                 name="monthlyBudget"
                 type="number"
@@ -89,7 +88,7 @@ export function PersonaForm({ initialData }: { initialData: any }) {
             </label>
             <select
               name="language"
-              defaultValue={initialData?.profile?.language || "English"}
+              defaultValue={initialData?.language || "English"}
               className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none cursor-pointer"
             >
               <option value="English">English</option>
@@ -103,7 +102,7 @@ export function PersonaForm({ initialData }: { initialData: any }) {
           </div>
 
           {/* Financial Goal */}
-          <div className="">
+          <div className="space-y-3">
             <label className="text-sm font-medium text-zinc-400">
               Current Financial Goal
             </label>
@@ -112,7 +111,7 @@ export function PersonaForm({ initialData }: { initialData: any }) {
               type="text"
               defaultValue={initialData?.financialGoal || ""}
               placeholder="e.g., Save for a new MacBook"
-              className="w-full mt-3 bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+              className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
             />
           </div>
 
@@ -123,7 +122,7 @@ export function PersonaForm({ initialData }: { initialData: any }) {
               className="w-full cursor-pointer md:w-auto px-8 py-4 bg-white text-black font-bold rounded-2xl hover:bg-zinc-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isPending ? (
-                "Saving..."
+                <Loader className="animate-spin" size={20} />
               ) : (
                 <>
                   <Save size={18} />
