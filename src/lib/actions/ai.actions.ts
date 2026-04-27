@@ -15,7 +15,10 @@ export async function getAIInsight() {
 
     const [dbUser, recentTransactions] = await Promise.all([
       User.findById(session.user.id).select("balance profile").lean(),
-      Transaction.find({ userId: session.user.id }).sort({ date: -1 }).limit(30).lean()
+      Transaction.find({ userId: session.user.id })
+        .sort({ date: -1 })
+        .limit(30)
+        .lean(),
     ]);
 
     if (!recentTransactions?.length) return "Add transactions for AI analysis!";
@@ -25,7 +28,7 @@ export async function getAIInsight() {
     let totalIncome = 0;
 
     recentTransactions.forEach((t) => {
-      if (t.type === 'expense' || t.type === 'debt') {
+      if (t.type === "expense" || t.type === "debt") {
         totalSpent += t.amount;
       } else {
         totalIncome += t.amount;
@@ -40,6 +43,9 @@ export async function getAIInsight() {
     const profile = dbUser?.profile || {};
     const occupation = profile.occupation || "Student";
     const language = profile.language || "English";
+    const hasBudget = profile.monthlyBudget && profile.monthlyBudget > 0;
+
+    const budgetText = hasBudget ? `₹${profile.monthlyBudget}` : "Not Set";
 
     // --- 2. THE "NEO" TOTAL-SIGHT PROMPT ---
     const systemMessage = `
@@ -49,11 +55,12 @@ USER CONTEXT:
 - Occupation: ${occupation}
 - Language: ${language}
 - Current Balance: ₹${dbUser?.balance}
-- Monthly Budget: ₹${profile.monthlyBudget}
 - Total Income: ₹${totalIncome}
 - Total Expenses: ₹${totalSpent}
 - Financial Goal: ${profile.financialGoal}
 - Risk Tolerance: ${dbUser?.aiPreferences?.riskTolerance}
+- Monthly Budget: ${budgetText}
+- Budget Status: ${hasBudget ? "SET" : "NOT_SET"}
 
 TRANSACTION SUMMARY:
 ${dataSummary}
@@ -68,6 +75,14 @@ STYLE:
 - Professional but simple
 - Slightly premium tone, not robotic
 
+BUDGET LOGIC:
+
+- If Budget Status is NOT_SET:
+  → DO NOT analyze budget usage
+  → Instead suggest setting a monthly budget for control
+
+- If Budget Status is SET:
+  → Compare expenses with budget and give insight
 
 CORE ANALYSIS:
 
@@ -103,6 +118,8 @@ OUTPUT RULES:
 - MUST reference budget or balance
 - Avoid complex financial jargon
 - Always use ₹
+- If budget is NOT_SET, suggest setting a budget instead of referencing ₹0
+- Never display ₹0 as a budget; treat it as "Not Set"
 
 LANGUAGE:
 
@@ -119,13 +136,16 @@ EXAMPLE OUTPUT:
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         { role: "system", content: systemMessage },
-        { role: "user", content: `Full History Summary:\n${dataSummary}` }
+        { role: "user", content: `Full History Summary:\n${dataSummary}` },
       ],
       model: "llama-3.3-70b-versatile",
-      temperature: 0.1, 
+      temperature: 0.1,
     });
 
-    return chatCompletion.choices[0]?.message?.content?.trim() || "Insights pending...";
+    return (
+      chatCompletion.choices[0]?.message?.content?.trim() ||
+      "Insights pending..."
+    );
   } catch (error) {
     console.error(error);
     return "Synchronizing wealth intelligence...";
@@ -136,35 +156,65 @@ export async function predictCategory(description: string) {
   if (!description || description.length < 3) return "Other";
 
   const categories = [
-  // Essentials
-  "Food", "Groceries", "Dining Out", "Snacks",
-  "Transport", "Commute", "Fuel", "Rent/PG",
-  "Bills", "Utilities", "Subscription", "Laundry",
-  
-  // Professional & Tech
-  "Education", "Placement Prep", "Software Tools", "Hardware",
-  "Cloud Services", "Domains", "API Credits", "Stationery",
-  
-  // Social & Fintech
-  "Lent / Owed", "Debt Repayment", "Group Split", "Gifts",
-  "Entertainment", "Hobbies", "Party", "Social Hangout",
-  
-  // Wellness
-  "Health", "Fitness", "Personal Care", "Apparel",
-  
-  // Wealth & Income
-  "Income", "Pocket Money", "Refunds", "Rewards",
-  "Savings Vault", "Investment", "Mutual Funds",
-  
-  // Misc
-  "Charity", "Other"
-];
+    // Essentials
+    "Food",
+    "Groceries",
+    "Dining Out",
+    "Snacks",
+    "Transport",
+    "Commute",
+    "Fuel",
+    "Rent/PG",
+    "Bills",
+    "Utilities",
+    "Subscription",
+    "Laundry",
+
+    // Professional & Tech
+    "Education",
+    "Placement Prep",
+    "Software Tools",
+    "Hardware",
+    "Cloud Services",
+    "Domains",
+    "API Credits",
+    "Stationery",
+
+    // Social & Fintech
+    "Lent / Owed",
+    "Debt Repayment",
+    "Group Split",
+    "Gifts",
+    "Entertainment",
+    "Hobbies",
+    "Party",
+    "Social Hangout",
+
+    // Wellness
+    "Health",
+    "Fitness",
+    "Personal Care",
+    "Apparel",
+
+    // Wealth & Income
+    "Income",
+    "Pocket Money",
+    "Refunds",
+    "Rewards",
+    "Savings Vault",
+    "Investment",
+    "Mutual Funds",
+
+    // Misc
+    "Charity",
+    "Other",
+  ];
   try {
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         {
           role: "system",
-          content: `You are a financial assistant. Respond with ONLY one word from this list: [${categories.join(", ")}]. If unsure, respond 'Other'.`
+          content: `You are a financial assistant. Respond with ONLY one word from this list: [${categories.join(", ")}]. If unsure, respond 'Other'.`,
         },
         {
           role: "user",
@@ -175,13 +225,14 @@ export async function predictCategory(description: string) {
       temperature: 0.1, // Low temperature makes it more accurate/strict
     });
 
-    const prediction = chatCompletion.choices[0]?.message?.content?.trim() || "Other";
-    
+    const prediction =
+      chatCompletion.choices[0]?.message?.content?.trim() || "Other";
+
     // Clean up any punctuation the AI might add
     const cleaned = prediction.replace(/[^\w]/g, "");
 
     const matchedCategory = categories.find(
-      (c) => c.toLowerCase() === cleaned.toLowerCase()
+      (c) => c.toLowerCase() === cleaned.toLowerCase(),
     );
 
     return matchedCategory || "Other";
