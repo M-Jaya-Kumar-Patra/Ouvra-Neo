@@ -25,7 +25,7 @@ export async function SplitContent() {
       <div className="col-span-1 order-2 md:col-span-4 space-y-6">
         
         {/* Recent Splits Card */}
-        <div className="p-5 md:p-6 rounded-3xl bg-zinc-900 border border-zinc-800 flex flex-col h-[400px] md:h-[500px]">
+        <div className="flex h-[400px] flex-col rounded-3xl border border-zinc-800 bg-zinc-950/70 p-5 shadow-xl shadow-black/10 md:h-[500px] md:p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-5 text-zinc-300">
             <div className="flex items-center gap-2">
@@ -49,7 +49,7 @@ export async function SplitContent() {
                   <Link 
                     key={split._id} 
                     href={`/manage-split/${split._id}`}
-                    className="block p-3.5 md:p-4 rounded-2xl bg-zinc-950 border border-zinc-800 hover:border-blue-500/50 active:scale-[0.98] transition-all group relative overflow-hidden"
+                    className="group relative block overflow-hidden rounded-2xl border border-zinc-800 bg-black/30 p-3.5 transition-all hover:border-blue-500/50 active:scale-[0.98] md:p-4"
                   >
                     {isFullySettled && (
                       <div className="absolute top-0 right-0 w-12 h-12 bg-emerald-500/5 blur-xl pointer-events-none" />
@@ -96,7 +96,7 @@ export async function SplitContent() {
         </div>
         
         {/* Pro Tip Card - Hidden on very small screens or kept compact */}
-        <div className="p-5 md:p-6 rounded-3xl bg-zinc-900 border border-zinc-800 relative overflow-hidden group">
+        <div className="group relative overflow-hidden rounded-3xl border border-blue-500/15 bg-blue-500/5 p-5 md:p-6">
           <div className="absolute top-0 right-0 p-8 bg-blue-500/5 rounded-full blur-3xl" />
           <h4 className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1.5">Pro Tip</h4>
           <p className="text-[11px] md:text-xs text-zinc-400 leading-relaxed relative z-10">

@@ -5,6 +5,11 @@ import Transaction from "@/lib/models/Transaction";
 import User from "@/lib/models/User";
 import { connectToDatabase } from "@/lib/mongodb";
 import { groq } from "@/lib/groq";
+import {
+  buildFinancialInsightSummary,
+  type InsightTransaction,
+  type InsightUser,
+} from "@/lib/utils/insights";
 
 export async function getAIInsight() {
   try {
@@ -13,133 +18,103 @@ export async function getAIInsight() {
 
     await connectToDatabase();
 
-    const [dbUser, recentTransactions] = await Promise.all([
-      User.findById(session.user.id).select("balance profile").lean(),
+    const [rawUser, rawTransactions] = await Promise.all([
+      User.findById(session.user.id)
+        .select("balance profile vaults aiPreferences")
+        .lean(),
       Transaction.find({ userId: session.user.id })
         .sort({ date: -1 })
-        .limit(30)
+        .limit(60)
         .lean(),
     ]);
 
+    const dbUser = rawUser as InsightUser | null;
+    const recentTransactions = rawTransactions as InsightTransaction[];
+
     if (!recentTransactions?.length) return "Add transactions for AI analysis!";
 
-    // --- 1. CALCULATE TOTAL REVENUE VS TOTAL EXPENSE ---
-    let totalSpent = 0;
-    let totalIncome = 0;
-
-    recentTransactions.forEach((t) => {
-      if (t.type === "expense" || t.type === "debt") {
-        totalSpent += t.amount;
-      } else {
-        totalIncome += t.amount;
-      }
-    });
-
-    const netImpact = totalIncome - totalSpent;
-    const dataSummary = recentTransactions
-      .map((t) => `[${t.type.toUpperCase()}] ₹${t.amount}: ${t.description}`)
-      .join("\n");
+    const summary = buildFinancialInsightSummary(dbUser, recentTransactions);
 
     const profile = dbUser?.profile || {};
     const occupation = profile.occupation || "Student";
     const language = profile.language || "English";
-    const hasBudget = profile.monthlyBudget && profile.monthlyBudget > 0;
+    const hasBudget = summary.monthlyBudget > 0;
+    const budgetText = hasBudget ? `INR ${summary.monthlyBudget}` : "Not Set";
 
-    const budgetText = hasBudget ? `₹${profile.monthlyBudget}` : "Not Set";
+    const transactionSummary = recentTransactions
+      .slice(0, 20)
+      .map(
+        (t) =>
+          `[${String(t.type).toUpperCase()}] INR ${Number(t.amount || 0)}: ${
+            t.description || "Transaction"
+          } (${t.category || "Other"})`,
+      )
+      .join("\n");
 
-    // --- 2. THE "NEO" TOTAL-SIGHT PROMPT ---
     const systemMessage = `
-You are Ouvra Neo, a Personal Financial Advisor and Wealth Coach.
+You are Ouvra Neo, a personal financial advisor and wealth coach.
 
 USER CONTEXT:
 - Occupation: ${occupation}
 - Language: ${language}
-- Current Balance: ₹${dbUser?.balance}
-- Total Income: ₹${totalIncome}
-- Total Expenses: ₹${totalSpent}
-- Financial Goal: ${profile.financialGoal}
-- Risk Tolerance: ${dbUser?.aiPreferences?.riskTolerance}
+- Current Balance: INR ${summary.balance}
+- Total Income: INR ${summary.totalIncome}
+- Total Expenses: INR ${summary.totalExpense}
+- Net Cash Flow: INR ${summary.netCashFlow}
+- Financial Goal: ${profile.financialGoal || "Not set"}
+- Risk Tolerance: ${dbUser?.aiPreferences?.riskTolerance || "medium"}
 - Monthly Budget: ${budgetText}
 - Budget Status: ${hasBudget ? "SET" : "NOT_SET"}
+- Budget Used: ${summary.budgetUsed ?? "UNKNOWN"}%
+- Savings Rate: ${summary.savingsRate ?? "UNKNOWN"}%
+- Balance Runway: ${summary.runwayDays ?? "UNKNOWN"} days
+- Top Category: ${
+      summary.topCategory
+        ? `${summary.topCategory.name} at ${summary.topCategory.percentage}%`
+        : "UNKNOWN"
+    }
+- Small-Spend Leak: INR ${summary.leakTotal} across ${
+      summary.smallExpenseCount
+    } transactions (${summary.leakPercentage}% of spend)
+- Recurring Signals: ${
+      summary.recurringSignals.length
+        ? JSON.stringify(summary.recurringSignals)
+        : "None detected"
+    }
+- Vault Progress: ${
+      summary.vaultProgress.length
+        ? JSON.stringify(summary.vaultProgress.slice(0, 3))
+        : "No vaults"
+    }
+- Recommended Actions: ${summary.recommendations.join(" | ")}
 
-TRANSACTION SUMMARY:
-${dataSummary}
+RECENT TRANSACTIONS:
+${transactionSummary}
 
-YOUR ROLE:
-
-Analyze the user's financial behavior and give practical, actionable advice.
-
-
-STYLE:
-
-- Professional but simple
-- Slightly premium tone, not robotic
-
-BUDGET LOGIC:
-
-- If Budget Status is NOT_SET:
-  → DO NOT analyze budget usage
-  → Instead suggest setting a monthly budget for control
-
-- If Budget Status is SET:
-  → Compare expenses with budget and give insight
-
-CORE ANALYSIS:
-
-1. CASH FLOW CHECK:
-- Compare income vs expenses
-- Detect overspending or savings potential
-
-2. BUDGET INTELLIGENCE:
-- Compare expenses with Monthly Budget
-- If exceeding → warn clearly
-- If under budget → suggest savings or investment
-
-3. BEHAVIOR DETECTION:
-- Frequent small expenses → highlight as "leak"
-- High spending category → flag it
-- Savings pattern → appreciate and reinforce
-
-4. PERSONALIZED ADVICE:
-- Give 2–3 specific actions user can take immediately
-- Suggest saving %, spending cuts, or habit changes
-- if financial goal is present then consider this : Align advice with "${profile.financialGoal}"
-
-5. BALANCE AWARENESS:
-- Comment on current balance sustainability (runway thinking for ${occupation})
+ANALYSIS RULES:
+- Diagnose cash flow, budget pressure, spending concentration, leaks, recurring patterns, balance runway, and savings goal progress.
+- If Budget Status is NOT_SET, suggest setting a realistic monthly budget and do not mention INR 0.
+- If Budget Status is SET, compare spend to the budget and state whether the user is safe, close, or over.
+- Align advice with the user's goal when one exists.
+- Do not mention individual item names or exact small transaction prices.
+- Give one clear risk and two next actions.
 
 OUTPUT RULES:
-
-- DO NOT mention individual small transactions or exact item prices
-- Focus only on patterns, not specific items
-- MAX 2 sentences, MAX 30 words
-- Clear, practical, and slightly premium tone
-- MUST include at least 1 actionable tip
-- MUST reference budget or balance
-- Avoid complex financial jargon
-- Always use ₹
-- If budget is NOT_SET, suggest setting a budget instead of referencing ₹0
-- Never display ₹0 as a budget; treat it as "Not Set"
-
-LANGUAGE:
-
-- Respond ONLY in ${language}
-- Hinglish → natural mix
-- Hindi/Odia → native script
-
-EXAMPLE OUTPUT:
-
-"Your expenses are crossing your monthly budget, creating pressure on your ₹${dbUser?.balance} balance. Cut down frequent small spends like food or subscriptions to plug leaks. Try saving at least 20% of your income monthly to move steadily toward ${profile.financialGoal}."
-
+- Respond only in ${language}.
+- Hinglish means natural mixed Hindi-English.
+- Hindi or Odia should use native script.
+- Maximum 3 sentences and 55 words.
+- Use INR, not currency symbols.
+- Keep the tone practical, premium, and non-robotic.
 `;
 
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         { role: "system", content: systemMessage },
-        { role: "user", content: `Full History Summary:\n${dataSummary}` },
+        { role: "user", content: "Generate today's financial insight." },
       ],
       model: "llama-3.3-70b-versatile",
-      temperature: 0.1,
+      temperature: 0.15,
     });
 
     return (
@@ -156,7 +131,6 @@ export async function predictCategory(description: string) {
   if (!description || description.length < 3) return "Other";
 
   const categories = [
-    // Essentials
     "Food",
     "Groceries",
     "Dining Out",
@@ -169,8 +143,6 @@ export async function predictCategory(description: string) {
     "Utilities",
     "Subscription",
     "Laundry",
-
-    // Professional & Tech
     "Education",
     "Placement Prep",
     "Software Tools",
@@ -179,8 +151,6 @@ export async function predictCategory(description: string) {
     "Domains",
     "API Credits",
     "Stationery",
-
-    // Social & Fintech
     "Lent / Owed",
     "Debt Repayment",
     "Group Split",
@@ -189,14 +159,10 @@ export async function predictCategory(description: string) {
     "Hobbies",
     "Party",
     "Social Hangout",
-
-    // Wellness
     "Health",
     "Fitness",
     "Personal Care",
     "Apparel",
-
-    // Wealth & Income
     "Income",
     "Pocket Money",
     "Refunds",
@@ -204,35 +170,32 @@ export async function predictCategory(description: string) {
     "Savings Vault",
     "Investment",
     "Mutual Funds",
-
-    // Misc
     "Charity",
     "Other",
   ];
+
   try {
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         {
           role: "system",
-          content: `You are a financial assistant. Respond with ONLY one word from this list: [${categories.join(", ")}]. If unsure, respond 'Other'.`,
+          content: `You are a financial assistant. Respond with ONLY one category from this list: [${categories.join(", ")}]. If unsure, respond Other.`,
         },
         {
           role: "user",
           content: `Category for: "${description}"`,
         },
       ],
-      model: "llama-3.3-70b-versatile", // Or "llama3-8b-8192" for even more speed
-      temperature: 0.1, // Low temperature makes it more accurate/strict
+      model: "llama-3.3-70b-versatile",
+      temperature: 0.1,
     });
 
     const prediction =
       chatCompletion.choices[0]?.message?.content?.trim() || "Other";
-
-    // Clean up any punctuation the AI might add
-    const cleaned = prediction.replace(/[^\w]/g, "");
+    const cleaned = prediction.replace(/[^\w\s/]/g, "").trim();
 
     const matchedCategory = categories.find(
-      (c) => c.toLowerCase() === cleaned.toLowerCase(),
+      (category) => category.toLowerCase() === cleaned.toLowerCase(),
     );
 
     return matchedCategory || "Other";

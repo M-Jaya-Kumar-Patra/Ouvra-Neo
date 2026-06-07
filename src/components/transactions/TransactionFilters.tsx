@@ -15,9 +15,9 @@ export function TransactionFilters() {
   };
 
   return (
-    <div className="flex flex-wrap gap-4 items-center">
+    <div className="flex flex-wrap items-center gap-3">
       <Select onValueChange={(v) => updateFilter("type", v)}>
-        <SelectTrigger className="w-[180px] bg-zinc-900 border-zinc-800 text-zinc-300">
+        <SelectTrigger className="h-11 w-[180px] rounded-xl border-zinc-800 bg-black/30 text-zinc-300">
           <SelectValue placeholder="All Types" />
         </SelectTrigger>
         <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-300">

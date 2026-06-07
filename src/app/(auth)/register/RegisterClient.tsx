@@ -50,14 +50,35 @@ export default function RegisterClient() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#09090b] px-4 relative overflow-hidden">
-      {/* Background Glows */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[25%] -left-[10%] w-[50%] h-[50%] bg-blue-500/10 blur-[120px] rounded-full" />
-        <div className="absolute -bottom-[25%] -right-[10%] w-[50%] h-[50%] bg-blue-600/5 blur-[120px] rounded-full" />
-      </div>
+    <div className="relative grid min-h-screen overflow-hidden bg-[#07080b] px-4 py-6 text-white lg:grid-cols-[1fr_500px] lg:p-6">
+      <section className="hidden rounded-[2rem] border border-zinc-800 bg-zinc-950/70 p-10 lg:flex lg:flex-col lg:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="relative h-12 w-12 overflow-hidden rounded-2xl border border-zinc-800 bg-black">
+            <Image src="/logo.png" alt="Ouvra Neo Logo" fill className="object-contain p-1" priority />
+          </div>
+          <div>
+            <p className="text-xl font-black tracking-tight">Ouvra Neo</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-300">Finance OS</p>
+          </div>
+        </div>
+        <div className="max-w-xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-300">Create your cockpit</p>
+          <h1 className="mt-4 text-5xl font-semibold tracking-tight">Start with secure data. Grow with better insight.</h1>
+          <p className="mt-5 text-base leading-7 text-zinc-400">
+            Build your financial profile once, then let Ouvra Neo personalize budgets, savings goals, and recommendations.
+          </p>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {["2FA ready", "AI persona", "Goal vaults"].map((item) => (
+            <div key={item} className="rounded-2xl border border-zinc-800 bg-black/30 p-4 text-sm font-semibold text-zinc-300">
+              {item}
+            </div>
+          ))}
+        </div>
+      </section>
 
-      <Card className="w-full max-w-md bg-zinc-900/50 border-zinc-800 backdrop-blur-xl relative z-10 shadow-2xl rounded-[2.5rem]">
+      <section className="flex items-center justify-center lg:px-8">
+      <Card className="relative z-10 w-full max-w-md rounded-3xl border-zinc-800 bg-zinc-950/80 shadow-2xl shadow-black/30 backdrop-blur-xl">
         <CardHeader className="text-center space-y-2 pt-10">
   {/* Logo Section stays here... */}
   <div className="flex justify-center mb-2">
@@ -77,7 +98,7 @@ export default function RegisterClient() {
   </div>
 
   {/* BRAND TITLE */}
-  <CardTitle className="text-3xl font-black tracking-tighter italic bg-gradient-to-r from-white to-zinc-500 bg-clip-text text-transparent px-1">
+  <CardTitle className="bg-gradient-to-r from-white to-zinc-500 bg-clip-text px-1 text-3xl font-black tracking-tight text-transparent">
     OUVRA NEO
   </CardTitle>
 
@@ -174,6 +195,7 @@ export default function RegisterClient() {
           </p>
         </CardFooter>
       </Card>
+      </section>
     </div>
   );
 }

@@ -6,6 +6,8 @@ import { ExportMenu } from "@/components/transactions/ExportMenu";
 import { auth } from "../../../../auth";
 import { connectToDatabase } from "@/lib/mongodb";
 import Transaction from "@/lib/models/Transaction";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { ReceiptText } from "lucide-react";
 
 export default function FullTransactionsPage({ 
   searchParams 
@@ -13,16 +15,15 @@ export default function FullTransactionsPage({
   searchParams: Promise<{ query?: string; type?: string; category?: string }> 
 }) {
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] space-y-4 md:space-y-6 p-2 md:p-6">
-      
-      {/* Header Section */}
-      <div className="flex flex-col gap-1 shrink-0">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">Transaction History</h1>
-        <p className="text-zinc-400 text-xs md:text-sm">Review every rupee moved with Ouvra Neo.</p>
-      </div>
+    <div className="flex min-h-[calc(100vh-8rem)] flex-col space-y-5">
+      <PageHeader
+        eyebrow="Ledger"
+        title="Transaction history"
+        description="Search, filter, audit, and export every income, expense, debt, and settlement movement."
+        icon={<ReceiptText className="h-6 w-6" />}
+      />
 
-      {/* Controls Section: Filters and Export side-by-side on mobile */}
-      <div className="flex flex-row items-start gap-2 md:gap-4 shrink-0">
+      <div className="flex shrink-0 flex-row items-start gap-2 rounded-3xl border border-zinc-800 bg-zinc-950/70 p-3 md:gap-4 md:p-4">
         <div className="flex-1">
           <Suspense fallback={<div className="h-10 w-full bg-zinc-900 animate-pulse rounded-lg" />}>
             <TransactionFilters />
@@ -37,9 +38,8 @@ export default function FullTransactionsPage({
         </div>
       </div>
 
-      {/* The List Container */}
       <div className="flex-1 min-h-0 w-full"> 
-        <Suspense fallback={<div className="h-full w-full bg-zinc-900/50 animate-pulse rounded-[2rem] md:rounded-[2.5rem] border border-zinc-800" />}>
+        <Suspense fallback={<div className="h-full min-h-[420px] w-full animate-pulse rounded-3xl border border-zinc-800 bg-zinc-950/70" />}>
           <TransactionList searchParams={searchParams} />
         </Suspense>
       </div>

@@ -4,7 +4,7 @@ export function WalletOverview({ lent }: { lent: number }) {
   return (
     <div className="w-full h-full">
       {/* Container matches the height of neighboring cards */}
-      <div className="h-full p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 flex flex-col justify-between transition-all hover:bg-emerald-500/10">
+      <div className="flex h-full flex-col justify-between rounded-3xl border border-emerald-500/15 bg-emerald-500/5 p-6 shadow-xl shadow-black/10 transition-all hover:bg-emerald-500/10">
         <div className="flex justify-between items-start">
           <div className="p-2.5 bg-emerald-500/20 rounded-xl text-emerald-500">
             <ArrowUpRight size={22} />

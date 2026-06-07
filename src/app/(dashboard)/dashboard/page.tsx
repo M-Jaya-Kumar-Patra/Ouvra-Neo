@@ -28,6 +28,7 @@ import {
   PieChart,
   ChevronRight,
 } from "lucide-react";
+import { PageHeader } from "@/components/shared/PageHeader";
 // 1. Loading Skeleton
 // 1. Loading Skeleton
 function ChartSkeleton() {
@@ -161,12 +162,12 @@ async function DashboardContent({
   const chartData = [...allTransactions]
     .reverse()
     .reduce<ChartData[]>((acc, curr: TransactionDoc) => {
-      const date = format(new Date(curr.date), "MMM dd");
+      const date = format(new Date(curr.date), "yyyy-MM-dd");
       const existing = acc.find((d) => d.date === date);
 
       if (existing) {
         if (curr.type === "income") existing.income += curr.amount;
-        else existing.expense += curr.amount;
+        else if (curr.type === "expense") existing.expense += curr.amount;
       } else {
         acc.push({
           date,
@@ -186,37 +187,31 @@ async function DashboardContent({
 
   // Inside OverviewPage.tsx -> DashboardContent component
   return (
-    <div className="space-y-6 p-2 md:p-6  max-w-[1600px] mx-auto overflow-x-hidden">
-      {/* Header Section: Stack on mobile, side-by-side on md+ */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between">
-        <div className="space-y-1">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white italic">
-            Welcome, {firstName}
-          </h1>
-          <p className="text-zinc-400 text-sm md:text-base">
-            Your financial overview at a glance.
-          </p>
-        </div>
-
-        {/* Action Buttons: Perfectly sized and aligned */}
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <Link
-            href="/split"
-            className="flex-1 sm:w-40 flex items-center justify-center gap-2 h-11 px-4 bg-blue-600/10 border border-blue-500/20 text-blue-400 rounded-xl text-sm font-bold hover:bg-blue-600/20 transition-all"
-          >
-            <Users2 size={16} />
-            <span>Split Bill</span>
-          </Link>
-
-          <div className="flex-1 sm:w-40">
-            <AddTransaction />
+    <div className="mx-auto max-w-[1600px] space-y-6 overflow-x-hidden">
+      <PageHeader
+        eyebrow="Overview"
+        title={`Welcome, ${firstName}`}
+        description="A live operating view of balance, cash flow, split exposure, recent activity, and AI recommendations."
+        icon={<Wallet className="h-6 w-6" />}
+        action={
+          <div className="flex w-full items-center gap-3 sm:w-auto">
+            <Link
+              href="/split"
+              className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-blue-500/20 bg-blue-500/10 px-4 text-sm font-semibold text-blue-200 transition hover:border-blue-500/40 hover:bg-blue-500/15 sm:w-40"
+            >
+              <Users2 size={16} />
+              <span>Split bill</span>
+            </Link>
+            <div className="flex-1 sm:w-40">
+              <AddTransaction />
+            </div>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Stats Grid: 1 col on mobile, 3 on md */}
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 ">
-        <Card className="bg-zinc-900/50 rounded-3xl border-zinc-800 shadow-xl h-full">
+        <Card className="h-full rounded-3xl border-zinc-800 bg-zinc-950/70 shadow-xl shadow-black/10">
     <CardHeader className="flex flex-row items-center justify-between pb-2">
       <CardTitle className="text-sm font-medium text-zinc-400">Available Balance</CardTitle>
       <Wallet className="h-4 w-4 text-blue-500" />

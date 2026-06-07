@@ -31,13 +31,16 @@ export default function Verify2FAPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-zinc-900/50 border border-zinc-800 p-8 rounded-[2.5rem] backdrop-blur-xl">
+    <div className="flex min-h-screen items-center justify-center bg-[#07080b] p-4 text-white">
+      <div className="w-full max-w-md rounded-3xl border border-zinc-800 bg-zinc-950/80 p-8 shadow-2xl shadow-black/30 backdrop-blur-xl">
         <div className="flex flex-col items-center text-center">
-          <div className="h-16 w-16 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-6 border border-blue-500/20">
+          <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-500/20 bg-blue-500/10 text-blue-300">
             <ShieldCheck size={32} />
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Security Verification</h1>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-300">
+            Secure checkpoint
+          </p>
+          <h1 className="mb-2 mt-2 text-2xl font-semibold text-white">Security Verification</h1>
           <p className="text-zinc-400 text-sm mb-8 text-balance">
             Ouvra Neo requires a 2FA code to access your financial dashboard.
           </p>
@@ -50,13 +53,13 @@ export default function Verify2FAPage() {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="000000"
-            className="w-full bg-black border border-zinc-800 rounded-2xl p-4 text-center text-3xl tracking-[0.3em] font-mono focus:border-blue-500 outline-none transition-all text-white"
+            className="w-full rounded-2xl border border-zinc-800 bg-black/40 p-4 text-center font-mono text-3xl tracking-[0.3em] text-white outline-none transition-all focus:border-blue-500"
           />
           {error && <p className="text-rose-500 text-xs text-center font-medium">{error}</p>}
           
           <button
             disabled={loading || code.length !== 6}
-            className="w-full py-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-2xl font-bold transition-all flex items-center justify-center gap-2"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-4 font-bold text-white transition-all hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? <Loader2 className="animate-spin" /> : "Verify Identity"}
           </button>

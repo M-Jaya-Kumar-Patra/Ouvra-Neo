@@ -3,6 +3,7 @@ import { TransactionSearch } from "./TransactionSearch";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { EditTransactionButton } from "@/components/transactions/EditTransactionButton";
 
 interface TransactionRecord {
   _id: string;
@@ -23,7 +24,7 @@ export function RecentTransactions({
 }) {
   return (
     <Card className={cn(
-      "bg-zinc-900/50 border-zinc-800 flex flex-col transition-all duration-500",
+      "flex flex-col border-zinc-800 bg-zinc-950/70 shadow-xl shadow-black/10 transition-all duration-500",
       fullWidth
         ? "w-full flex-1 rounded-t-[2rem] md:rounded-[2.5rem] border-t border-zinc-800/50"
         : "max-h-[500px] md:max-h-[420px] rounded-2xl md:rounded-3xl"
@@ -71,8 +72,8 @@ export function RecentTransactions({
               <div
                 key={t._id.toString()}
                 className={cn(
-                  "group flex items-center justify-between p-3 md:px-6 md:py-5 rounded-xl md:rounded-2xl transition-all",
-                  "hover:bg-zinc-800/60 border-b border-zinc-800/30 last:border-none",
+                  "group flex items-center justify-between rounded-2xl border border-transparent p-3 transition-all md:px-5 md:py-4",
+                  "hover:border-zinc-800 hover:bg-zinc-900/70",
                   fullWidth ? "mx-0 md:mx-2" : ""
                 )}
               >
@@ -84,7 +85,7 @@ export function RecentTransactions({
   </span>
   <div className="flex items-center gap-2 flex-wrap">
     {/* Category Badge */}
-    <span className="text-[10px] md:text-xs font-medium px-1.5 py-0.5 rounded-md bg-zinc-800 text-zinc-400 shrink-0">
+    <span className="shrink-0 rounded-lg bg-zinc-900 px-2 py-1 text-[10px] font-medium text-zinc-400 md:text-xs">
       {t.category}
     </span>
 
@@ -105,7 +106,7 @@ export function RecentTransactions({
   </div>
 </div>
 
-                {/* Amount & Round-up */}
+<div className="flex shrink-0 items-center gap-3">
                 {/* Amount & Round-up */}
 <div className="text-right shrink-0 flex flex-col items-end">
   <div className={cn(
@@ -126,6 +127,18 @@ export function RecentTransactions({
       </span>
     </div>
   )}
+</div>
+{(t.type === "income" || t.type === "expense") && (
+  <EditTransactionButton
+    transaction={{
+      _id: t._id.toString(),
+      description: t.description,
+      amount: t.amount,
+      type: t.type,
+      category: t.category,
+    }}
+  />
+)}
 </div>
               </div>
             ))

@@ -7,6 +7,7 @@ import { RoundUpSettings } from "@/components/settings/RoundUpSettings";
 import Link from "next/link";
 import { ShieldCheck, UserCog, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { PageHeader } from "@/components/shared/PageHeader";
 
 // 1. Everything dynamic goes here
 async function SettingsContent() {
@@ -48,7 +49,7 @@ async function SettingsContent() {
         </div>
 
         {/* Account Status Mini-Card */}
-        <Card className="bg-zinc-900/30 border-zinc-800/50 rounded-3xl p-6">
+        <Card className="rounded-3xl border-zinc-800 bg-zinc-950/70 p-6">
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-xs text-zinc-500 font-medium">Status</span>
@@ -74,15 +75,13 @@ async function SettingsContent() {
 // 2. The Main Page remains a "Static Shell"
 export default function SettingsPage() {
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-10 space-y-10">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
-          Control Center
-        </h1>
-        <p className="text-zinc-500 text-sm md:text-base">
-          Manage your financial persona, security, and account preferences.
-        </p>
-      </div>
+    <div className="mx-auto max-w-6xl space-y-8">
+      <PageHeader
+        eyebrow="Control Center"
+        title="Personalization and rules"
+        description="Tune your AI persona, budget context, preferred language, security routes, and automatic round-up behavior."
+        icon={<UserCog className="h-6 w-6" />}
+      />
 
       {/* Now Suspense wraps the entire dynamic grid */}
       <Suspense fallback={<div className="text-zinc-500 animate-pulse">Synchronizing with ledger...</div>}>
@@ -100,7 +99,7 @@ function SettingRedirect({ href, icon, title, description }: {
 }) {
   return (
     <Link href={href}>
-      <Card className="bg-zinc-900/50 border-zinc-800 hover:bg-zinc-800/50 transition-all cursor-pointer group rounded-2xl">
+      <Card className="group cursor-pointer rounded-2xl border-zinc-800 bg-zinc-950/70 transition-all hover:border-blue-500/30 hover:bg-zinc-900/80">
         <CardContent className="p-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="p-2.5 bg-zinc-950 rounded-xl border border-zinc-800 group-hover:border-zinc-700 transition-colors">

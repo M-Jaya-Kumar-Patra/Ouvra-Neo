@@ -1,8 +1,15 @@
 const nextConfig = {
-  // Add this line inside your config object
   generateBuildId: () => `build-${new Date().getTime()}`,
-  
-  // Also ensure this is updated as per previous warnings
+
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+    ],
+  },
+
   cacheComponents: true,
 };
 

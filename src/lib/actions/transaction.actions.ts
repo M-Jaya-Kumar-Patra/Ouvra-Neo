@@ -7,15 +7,16 @@ import User from "@/lib/models/User";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-
 interface IVault {
   name: string;
   targetAmount: number;
   currentBalance: number;
   roundUpEnabled: boolean;
-  category: string;
+  category?: string;
 }
 
+type EditableTransactionType = "income" | "expense";
+type TransactionImpactType = EditableTransactionType | "owed_to_me" | "debt";
 
 const TransactionSchema = z.object({
   amount: z.coerce.number().positive(),
@@ -23,6 +24,67 @@ const TransactionSchema = z.object({
   type: z.enum(["income", "expense"]),
   category: z.string().optional(),
 });
+
+const UpdateTransactionSchema = TransactionSchema.extend({
+  transactionId: z.string().min(1),
+});
+
+function getTransactionImpact(transaction: {
+  amount: number;
+  roundUpAmount?: number;
+  type: TransactionImpactType;
+}) {
+  if (transaction.type === "income") return Number(transaction.amount || 0);
+  if (transaction.type === "expense") {
+    return -Number(
+      (Number(transaction.amount || 0) + Number(transaction.roundUpAmount || 0)).toFixed(2),
+    );
+  }
+  return 0;
+}
+
+function calculateRoundUpAmount({
+  amount,
+  type,
+  roundUpRule,
+  isEnabledGlobally,
+  hasActiveVault,
+}: {
+  amount: number;
+  type: EditableTransactionType;
+  roundUpRule: number;
+  isEnabledGlobally: boolean;
+  hasActiveVault: boolean;
+}) {
+  if (type !== "expense" || !isEnabledGlobally || !hasActiveVault) return 0;
+
+  const nextMultiple = Math.ceil(amount / roundUpRule) * roundUpRule;
+  const finalTarget = nextMultiple === amount ? amount + roundUpRule : nextMultiple;
+
+  return Number((finalTarget - amount).toFixed(2));
+}
+
+async function getRoundUpContext(userId: string) {
+  const userDoc = await User.findById(userId).lean();
+  const roundUpRule = userDoc?.profile?.roundUpRule || 1;
+  const isEnabledGlobally = userDoc?.profile?.isRoundUpEnabled ?? true;
+  const hasActiveVault = (userDoc?.vaults as IVault[] | undefined)?.some(
+    (vault) => vault.roundUpEnabled,
+  );
+
+  return {
+    roundUpRule,
+    isEnabledGlobally,
+    hasActiveVault: Boolean(hasActiveVault),
+  };
+}
+
+function revalidateTransactionViews() {
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/transactions");
+  revalidatePath("/insights");
+  revalidatePath("/vaults");
+}
 
 export async function addTransaction(formData: FormData) {
   const session = await auth();
@@ -37,82 +99,129 @@ export async function addTransaction(formData: FormData) {
 
   await connectToDatabase();
   const userId = session.user.id;
+  const roundUpContext = await getRoundUpContext(userId);
+  const roundUpAmount = calculateRoundUpAmount({
+    amount: validated.amount,
+    type: validated.type,
+    ...roundUpContext,
+  });
 
-  // 1. Fetch User and Profile settings
-  const userDoc = await User.findById(userId).lean();
-  
-  // Get the rule from profile (Default to 1 if not set)
-  const roundUpRule = userDoc?.profile?.roundUpRule || 1;
-  const isEnabledGlobally = userDoc?.profile?.isRoundUpEnabled ?? true;
-  
-  // Check if any vault is actually listening for round-ups
-  const hasActiveVault = (userDoc?.vaults as IVault[])?.some((v) => v.roundUpEnabled);
-
-  // 2. Calculate Round Up based on the Rule (₹1, ₹10, ₹50, etc.)
-  let roundUpAmount = 0;
-  if (validated.type === "expense" && isEnabledGlobally && hasActiveVault) {
-    const amount = validated.amount;
-    
-    // Logic: Find the next multiple of the rule
-    // Example: Amount 42, Rule 10 -> Math.ceil(42/10)*10 = 50. 50 - 42 = 8 saved.
-    const nextMultiple = Math.ceil(amount / roundUpRule) * roundUpRule;
-    
-    // If the amount is already a multiple (e.g., 50), 
-    // most fintechs round to the NEXT multiple (60) to ensure a save occurs.
-    const finalTarget = nextMultiple === amount ? amount + roundUpRule : nextMultiple;
-    
-    roundUpAmount = Number((finalTarget - amount).toFixed(2));
-  }
-
-  // 3. Create Transaction
   await Transaction.create({
     userId,
     creatorId: userId,
     ...validated,
     category: validated.category || "General",
-    roundUpAmount: roundUpAmount,
-    type: validated.type
+    roundUpAmount,
   });
-
-  // 4. Update Balance (Transaction + RoundUp)
-  const totalDeduction = Number((validated.amount + roundUpAmount).toFixed(2));
-  const netAdjustment = validated.type === "income" ? validated.amount : -totalDeduction;
 
   await User.findByIdAndUpdate(userId, {
-    $inc: { balance: netAdjustment }
+    $inc: {
+      balance: getTransactionImpact({
+        amount: validated.amount,
+        roundUpAmount,
+        type: validated.type,
+      }),
+    },
   });
 
-  // 5. Move spare change to the specific Vault marked for Round-Up
   if (roundUpAmount > 0) {
     await User.updateOne(
       { _id: userId, "vaults.roundUpEnabled": true },
-      { $inc: { "vaults.$.currentBalance": roundUpAmount } }
+      { $inc: { "vaults.$.currentBalance": roundUpAmount } },
     );
   }
 
-  revalidatePath("/dashboard");
-  revalidatePath("/vaults");
+  revalidateTransactionViews();
 }
 
+export async function updateTransaction(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const validated = UpdateTransactionSchema.parse({
+    transactionId: formData.get("transactionId"),
+    amount: formData.get("amount"),
+    description: formData.get("description"),
+    type: formData.get("type"),
+    category: formData.get("category"),
+  });
+
+  await connectToDatabase();
+  const userId = session.user.id;
+
+  const existing = await Transaction.findOne({
+    _id: validated.transactionId,
+    userId,
+    type: { $in: ["income", "expense"] },
+  });
+
+  if (!existing) {
+    throw new Error("Transaction not found or cannot be edited");
+  }
+
+  const roundUpContext = await getRoundUpContext(userId);
+  const oldImpact = getTransactionImpact({
+    amount: existing.amount,
+    roundUpAmount: existing.roundUpAmount,
+    type: existing.type,
+  });
+
+  const newRoundUpAmount = calculateRoundUpAmount({
+    amount: validated.amount,
+    type: validated.type,
+    ...roundUpContext,
+  });
+
+  const newImpact = getTransactionImpact({
+    amount: validated.amount,
+    roundUpAmount: newRoundUpAmount,
+    type: validated.type,
+  });
+
+  const balanceDelta = Number((newImpact - oldImpact).toFixed(2));
+  const vaultRoundUpDelta = Number(
+    (newRoundUpAmount - Number(existing.roundUpAmount || 0)).toFixed(2),
+  );
+
+  existing.amount = validated.amount;
+  existing.description = validated.description;
+  existing.type = validated.type;
+  existing.category = validated.category || "General";
+  existing.roundUpAmount = newRoundUpAmount;
+  await existing.save();
+
+  if (balanceDelta !== 0) {
+    await User.findByIdAndUpdate(userId, { $inc: { balance: balanceDelta } });
+  }
+
+  if (vaultRoundUpDelta !== 0 && roundUpContext.hasActiveVault) {
+    await User.updateOne(
+      { _id: userId, "vaults.roundUpEnabled": true },
+      { $inc: { "vaults.$.currentBalance": vaultRoundUpDelta } },
+    );
+  }
+
+  revalidateTransactionViews();
+}
 
 export async function createPendingTransaction(data: {
-  userId: string; // The person who owes
+  userId: string;
   amount: number;
   note: string;
   description: string;
-  creatorId: string; // Add this to your function parameters
+  creatorId: string;
 }) {
   try {
     await connectToDatabase();
-    
+
     const newTx = await Transaction.create({
       userId: data.userId,
-      creatorId: data.creatorId, // Fix: Link it to the person who created the split
+      creatorId: data.creatorId,
       amount: data.amount,
       paymentNote: data.note,
       description: data.description,
       status: "pending",
-      type: "owed_to_me", // This type matches your new enum
+      type: "owed_to_me",
     });
 
     return JSON.parse(JSON.stringify(newTx));

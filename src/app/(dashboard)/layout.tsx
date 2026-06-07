@@ -7,7 +7,6 @@ import Transaction from "@/lib/models/Transaction";
 import { connectToDatabase } from "@/lib/mongodb";
 import { calculateTrend } from '@/lib/utils/finance';
 import { MobileNav } from '@/components/shared/MobileNav';
-import { cn } from '@/lib/utils';
 import {  UserCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -23,13 +22,17 @@ async function SidebarDataWrapper() {
     Transaction.find({ userId: session.user.id, type: 'income' }).select("amount date type").lean()
   ]);
 
-  const allTransactions = rawTransactions as any[];
+  const allTransactions = rawTransactions as Array<{
+    amount: number;
+    date: Date | string;
+    type: "income";
+  }>;
   const currentBalance = dbUser?.balance || 0;
   const { percentageChange } = calculateTrend(allTransactions);
 
   return (
     <Sidebar 
-      className="w-64 hidden md:flex" 
+      className="hidden w-72 md:flex" 
       balance={currentBalance} 
       trend={percentageChange} 
     />
@@ -42,18 +45,18 @@ async function MobileHeader() {
   const userImage = session?.user?.image;
 
   return (
-    <header className="md:hidden flex items-center justify-between px-4 py-5 bg-[#09090b]/80 backdrop-blur-2xl border-b border-zinc-800/50 z-40 h-20">
+    <header className="z-40 flex h-20 items-center justify-between border-b border-zinc-800/70 bg-zinc-950/80 px-4 py-5 backdrop-blur-2xl md:hidden">
       <div className="flex items-center gap-3">
         <div className="relative h-10 w-10">
           <Image src="/logo.png" alt="Logo" fill className="object-contain" priority />
         </div>
-        <span className="text-xl font-black tracking-tighter italic bg-gradient-to-r from-white to-zinc-500 bg-clip-text text-transparent px-1">
+        <span className="bg-gradient-to-r from-white to-zinc-500 bg-clip-text px-1 text-xl font-black tracking-tight text-transparent">
           OUVRA NEO
         </span>
       </div>
 
       <Link href="/profile" className="active:scale-90 transition-transform">
-        <div className="h-11 w-11 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center overflow-hidden shadow-lg shadow-black/50">
+        <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-lg shadow-black/50">
           {userImage ? (
             <img 
               src={userImage} 
@@ -71,9 +74,9 @@ async function MobileHeader() {
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen bg-[#09090b] text-zinc-100 overflow-hidden">
+    <div className="flex h-screen text-zinc-100 overflow-hidden">
       {/* Desktop Sidebar */}
-      <Suspense fallback={<div className="w-64 hidden md:flex bg-zinc-950 animate-pulse" />}>
+      <Suspense fallback={<div className="hidden w-72 animate-pulse border-r border-zinc-800 bg-zinc-950 md:flex" />}>
         <SidebarDataWrapper />
       </Suspense>
       
@@ -83,8 +86,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <MobileHeader />
         </Suspense>
 
-        <main className="flex-1 overflow-y-auto p-2 md:p-6 pb-32">
-          <div className="max-w-7xl mx-auto space-y-8">
+        <main className="flex-1 overflow-y-auto px-3 py-4 pb-32 md:px-8 md:py-8">
+          <div className="mx-auto max-w-[1500px] space-y-8">
             {children}
           </div>
         </main>

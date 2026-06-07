@@ -30,7 +30,7 @@ export async function VaultsContent() {
     <div className="space-y-8">
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-3">
-        <div className="p-4 rounded-xl bg-zinc-900 border border-zinc-800">
+        <div className="rounded-3xl border border-zinc-800 bg-zinc-950/70 p-5">
           <p className="text-xs text-zinc-500 uppercase font-bold">Total Savings</p>
           <h2 className="text-2xl font-bold text-white mt-1">₹{totalSaved.toLocaleString()}</h2>
           <div className="mt-2 h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
@@ -41,7 +41,7 @@ export async function VaultsContent() {
           </div>
         </div>
 
-        <div className="p-4 rounded-xl bg-zinc-900 border border-zinc-800">
+        <div className="rounded-3xl border border-zinc-800 bg-zinc-950/70 p-5">
           <p className="text-xs text-zinc-500 uppercase font-bold">Active Goals</p>
           <h2 className="text-2xl font-bold text-white mt-1">{vaults.length}</h2>
           <p className="text-[10px] text-zinc-500 mt-1">
@@ -49,7 +49,7 @@ export async function VaultsContent() {
           </p>
         </div>
 
-        <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20">
+        <div className="rounded-3xl border border-blue-500/20 bg-blue-500/5 p-5">
           <p className="text-xs text-blue-400 uppercase font-bold">Round-Up Engine</p>
           <h2 className="text-2xl font-bold text-white mt-1">
             {activeRoundUps > 0 ? "Optimized" : "Paused"}
@@ -75,7 +75,7 @@ export async function VaultsContent() {
         ))}
 
         {vaults.length === 0 && (
-          <div className="col-span-full border-2 border-dashed border-zinc-800 rounded-xl p-12 text-center">
+          <div className="col-span-full rounded-3xl border border-dashed border-zinc-800 bg-zinc-950/50 p-12 text-center">
             <p className="text-zinc-500">{"You haven't set any goals yet. Start small, save big."}</p>
           </div>
         )}

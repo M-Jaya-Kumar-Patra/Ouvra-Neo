@@ -7,12 +7,12 @@ import Link from "next/link";
 
 export default function ManageSplitPage({ params }: { params: Promise<{ id: string }> }) {
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen bg-[#07080b] text-white">
       {/* Minimal Top Nav */}
-      <nav className="sticky top-0 z-50 w-full border-b border-zinc-800 bg-black/50 backdrop-blur-xl">
-        <div className="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between">
+      <nav className="sticky top-0 z-50 w-full border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4 md:px-6">
           <Link href="/dashboard" className="flex items-center gap-2 group">
-            <div className="p-2 rounded-lg bg-zinc-900 group-hover:bg-zinc-800 transition-colors">
+            <div className="rounded-xl border border-zinc-800 bg-black/30 p-2 transition-colors group-hover:bg-zinc-900">
               <ArrowLeft className="h-4 w-4 text-zinc-400 group-hover:text-white" />
             </div>
             <span className="text-sm font-medium text-zinc-400 group-hover:text-white transition-colors">
@@ -23,13 +23,13 @@ export default function ManageSplitPage({ params }: { params: Promise<{ id: stri
         </div>
       </nav>
 
-      <div className="max-w-3xl mx-auto py-10 px-6">
+      <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-10">
         <Suspense fallback={<LoadingState />}>
           <SplitDetailsContent paramsPromise={params} />
         </Suspense>
       </div>
 
-<div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 p-2 rounded-2xl bg-zinc-900/80 border border-zinc-800 backdrop-blur-md shadow-2xl">
+<div className="fixed bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-2xl border border-zinc-800 bg-zinc-950/90 p-2 shadow-2xl backdrop-blur-md">
   <Link href="/dashboard" className="p-3 hover:bg-white/5 rounded-xl transition-colors">
     <PieChart className="h-5 w-5 text-zinc-400" />
   </Link>
@@ -72,17 +72,18 @@ const progressPercent = totalLent > 0 ? (totalSettled / totalLent) * 100 : 100;
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* 1. Header & Quick Stats */}
       <section className="space-y-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-black tracking-tight">{split.description}</h1>
-          <p className="text-zinc-500 mt-1">Created on {new Date(split.createdAt || Date.now()).toLocaleDateString()}</p>
+        <div className="rounded-3xl border border-zinc-800 bg-zinc-950/70 p-6 shadow-2xl shadow-black/20">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-300">Settlement</p>
+          <h1 className="mt-2 text-2xl font-semibold tracking-tight md:text-4xl">{split.description}</h1>
+          <p className="mt-2 text-sm text-zinc-500">Created on {new Date(split.createdAt || new Date()).toLocaleDateString()}</p>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="p-4 rounded-3xl bg-zinc-900/50 border border-zinc-800">
+          <div className="rounded-3xl border border-zinc-800 bg-zinc-950/70 p-5">
             <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold mb-1">Total Bill</p>
             <p className="text-2xl font-mono font-bold">₹{split.totalAmount}</p>
           </div>
-          <div className="p-4 rounded-3xl bg-emerald-500/10 border border-emerald-500/20">
+          <div className="rounded-3xl border border-emerald-500/20 bg-emerald-500/10 p-5">
             <p className="text-xs text-emerald-500 uppercase tracking-widest font-bold mb-1">To Receive</p>
             <p className="text-2xl font-mono font-bold text-emerald-400">₹{remaining}</p>
           </div>
@@ -105,12 +106,12 @@ const progressPercent = totalLent > 0 ? (totalSettled / totalLent) * 100 : 100;
 
       {/* 2. Merchant Payment (Modernized Glassmorphism) */}
       {split.merchantUpi && (
-        <section className="relative group overflow-hidden p-6 rounded-[2.5rem] bg-indigo-600/10 border border-indigo-500/30">
+        <section className="group relative overflow-hidden rounded-3xl border border-blue-500/25 bg-blue-500/10 p-6">
           <div className="absolute top-0 right-0 -mr-4 -mt-4 p-8 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-all" />
           
           <div className="relative flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex gap-4 items-center">
-              <div className="p-4 rounded-2xl bg-indigo-500 text-white shadow-lg shadow-indigo-500/20">
+              <div className="rounded-2xl bg-blue-500 p-4 text-white shadow-lg shadow-blue-500/20">
                 <Store className="h-6 w-6" />
               </div>
               <div>
@@ -146,10 +147,10 @@ const progressPercent = totalLent > 0 ? (totalSettled / totalLent) * 100 : 100;
 
   return (
     <div key={participant.userId || participant.name} 
-         className={`p-4 rounded-2xl border ${isMe ? "bg-indigo-500/5 border-indigo-500/20" : "bg-zinc-900 border-zinc-800"}`}>
+         className={`rounded-2xl border p-4 ${isMe ? "border-blue-500/20 bg-blue-500/5" : "border-zinc-800 bg-zinc-950/70"}`}>
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <div className={`p-3 rounded-xl ${isMe ? "bg-indigo-500 text-white" : "bg-zinc-800 text-zinc-400"}`}>
+          <div className={`rounded-xl p-3 ${isMe ? "bg-blue-500 text-white" : "bg-zinc-800 text-zinc-400"}`}>
             <User className="h-5 w-5" />
           </div>
           <div>

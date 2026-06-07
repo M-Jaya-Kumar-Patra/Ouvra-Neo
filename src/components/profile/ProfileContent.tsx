@@ -1,8 +1,9 @@
 import { auth } from "../../auth";
-import { LogOut, ShieldCheck, Mail, Globe, Lock, ChevronRight, Settings, UserCog } from "lucide-react";
+import { ShieldCheck, Mail, Globe, Lock, ChevronRight, Settings } from "lucide-react";
 import { SignOutButton } from "@/components/shared/SignOutButton"; // Recommended: Move logic to a client component
 import Link from "next/link";
 import { DeleteAccountButton } from "../shared/DeleteAccountButton";
+import Image from "next/image";
 
 
 
@@ -15,14 +16,16 @@ export async function ProfileContent() {
   return (
     <div className="space-y-6">
       {/* Header Card */}
-      <div className="p-6 md:p-8 bg-zinc-900 border border-zinc-800 rounded-[2.5rem] flex flex-col md:flex-row items-center gap-6 shadow-2xl">
+      <div className="flex flex-col items-center gap-6 rounded-3xl border border-zinc-800 bg-zinc-950/70 p-6 shadow-2xl shadow-black/20 md:flex-row md:p-8">
         <div className="relative group">
-          <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full" />
+          <div className="absolute inset-0 rounded-3xl bg-blue-500/20 blur-2xl" />
           {session.user?.image ? (
-            <img 
+            <Image 
               src={session.user.image} 
-              className="relative h-24 w-24 rounded-3xl border-2 border-zinc-800 object-cover shadow-xl"
               alt="Profile"
+              width={96}
+              height={96}
+              className="relative h-24 w-24 rounded-3xl border-2 border-zinc-800 object-cover shadow-xl"
             />
           ) : (
             <div className="relative h-24 w-24 rounded-3xl bg-zinc-800 border-2 border-zinc-700 flex items-center justify-center text-3xl font-bold text-zinc-500">
@@ -32,7 +35,7 @@ export async function ProfileContent() {
         </div>
 
         <div className="text-center md:text-left flex-1">
-          <h2 className="text-2xl font-bold text-white tracking-tight">{session.user?.name}</h2>
+          <h2 className="text-2xl font-semibold text-white tracking-tight">{session.user?.name || session.user?.fullName || "Ouvra member"}</h2>
           <div className="flex items-center justify-center md:justify-start gap-2 text-zinc-500 mt-1">
             <Mail size={14} />
             <p className="text-sm font-medium">{session.user?.email}</p>
@@ -41,9 +44,9 @@ export async function ProfileContent() {
       </div>
 
       <Link href="/settings" className="block group">
-        <div className="p-5 bg-gradient-to-r from-emerald-600/10 to-transparent border border-emerald-500/20 rounded-2xl flex items-center justify-between hover:border-emerald-500/40 transition-all active:scale-[0.98]">
+        <div className="flex items-center justify-between rounded-3xl border border-emerald-500/20 bg-emerald-500/5 p-5 transition-all hover:border-emerald-500/40 active:scale-[0.98]">
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:rotate-12 transition-transform">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-300 transition-transform group-hover:rotate-6">
               <Settings size={22} />
             </div>
             <div>
@@ -56,9 +59,9 @@ export async function ProfileContent() {
       </Link>
 
      <Link href="/settings/security" className="block group">
-        <div className="p-5 bg-gradient-to-r from-blue-600/10 to-transparent border border-blue-500/20 rounded-2xl flex items-center justify-between hover:border-blue-500/40 transition-all active:scale-[0.98]">
+        <div className="flex items-center justify-between rounded-3xl border border-blue-500/20 bg-blue-500/5 p-5 transition-all hover:border-blue-500/40 active:scale-[0.98]">
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/15 text-blue-300 transition-transform group-hover:scale-105">
               <Lock size={20} />
             </div>
             <div>
@@ -72,7 +75,7 @@ export async function ProfileContent() {
 
       {/* Security Details */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="p-6 bg-zinc-900/30 border border-zinc-800 rounded-3xl">
+        <div className="rounded-3xl border border-zinc-800 bg-zinc-950/70 p-6">
           <div className="flex items-center gap-2 mb-4">
             <ShieldCheck className="text-blue-500" size={18} />
             <h3 className="text-xs font-black text-zinc-500 uppercase tracking-[0.2em]">Security</h3>
@@ -95,7 +98,7 @@ export async function ProfileContent() {
 
         {/* Action Card */}
         {/* Action Card */}
-<div className="p-6 bg-rose-500/5 border border-rose-500/10 rounded-3xl space-y-4">
+<div className="space-y-4 rounded-3xl border border-rose-500/15 bg-rose-500/5 p-6">
   <div className="space-y-1">
     <h3 className="text-xs font-black text-rose-500 uppercase tracking-[0.2em]">Danger Zone</h3>
     <p className="text-[11px] text-zinc-500">Manage your session or terminate your data presence.</p>

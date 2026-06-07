@@ -28,7 +28,7 @@ export function RoundUpSettings({ initialEnabled, initialRule }: { initialEnable
   };
 
   return (
-    <Card className="bg-zinc-900/50 border-zinc-800 rounded-[2.5rem]  overflow-hidden">
+    <Card className="overflow-hidden rounded-3xl border-zinc-800 bg-zinc-950/70 shadow-xl shadow-black/10">
       <CardHeader className="border-b border-zinc-800/50 p-4 md:p-8">
         <CardTitle className="text-xl font-bold text-white flex items-center gap-3">
           <div className="p-2 bg-emerald-500/10 rounded-lg">
@@ -43,7 +43,7 @@ export function RoundUpSettings({ initialEnabled, initialRule }: { initialEnable
       
       <CardContent className="p-4 md:p-8 space-y-6 md:space-y-8">
         {/* Toggle Switch */}
-        <div className="flex items-center justify-between bg-zinc-950/50 p-4 rounded-2xl border border-zinc-800/50">
+        <div className="flex items-center justify-between rounded-2xl border border-zinc-800 bg-black/30 p-4">
           <div>
             <p className="text-sm font-medium text-zinc-200">Enable Round-ups</p>
             <p className="text-xs text-zinc-500">Automatically save change from transactions.</p>
@@ -86,7 +86,7 @@ export function RoundUpSettings({ initialEnabled, initialRule }: { initialEnable
               </button>
             ))}
           </div>
-          <div className="p-4 bg-zinc-950/30 rounded-xl border border-zinc-800/30">
+          <div className="rounded-2xl border border-zinc-800 bg-black/20 p-4">
             <p className="text-[11px] text-zinc-500 italic leading-relaxed">
               {isEnabled 
                 ? `Smart Logic: A ₹42.50 spend will automatically move ₹${(selectedRule - (42.50 % selectedRule)).toFixed(2)} to your active vault.` 

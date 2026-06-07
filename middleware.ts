@@ -9,10 +9,20 @@ export default auth((req) => {
 
   const isLoggedIn = !!req.auth;
 
-  const isProtectedPath =
-    nextUrl.pathname.startsWith("/dashboard") ||
-    nextUrl.pathname.startsWith("/profile") ||
-    nextUrl.pathname.startsWith("/split");
+  const protectedPrefixes = [
+    "/dashboard",
+    "/profile",
+    "/split",
+    "/vaults",
+    "/insights",
+    "/settings",
+    "/dues",
+    "/manage-split",
+  ];
+
+  const isProtectedPath = protectedPrefixes.some((path) =>
+    nextUrl.pathname.startsWith(path),
+  );
 
   if (isProtectedPath && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", nextUrl));

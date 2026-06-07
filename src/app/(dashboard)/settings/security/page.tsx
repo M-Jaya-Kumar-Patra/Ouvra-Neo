@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ShieldCheck, Smartphone, CheckCircle2, Loader2 } from "lucide-react";
 import { setup2FA, activate2FA } from "@/lib/actions/two-factor.actions";
 import Image from "next/image";
+import { PageHeader } from "@/components/shared/PageHeader";
 
 export default function SecurityPage() {
   const [step, setStep] = useState<"initial" | "scanning" | "completed">("initial");
@@ -31,25 +32,27 @@ export default function SecurityPage() {
   };
 
   return (
-    <div className="p-2 md:p-6 max-w-2xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl  font-bold text-white mb-2">Security Settings</h1>
-        <p className="text-zinc-400">Manage your account security and authentication methods.</p>
-      </div>
+    <div className="mx-auto max-w-3xl space-y-8">
+      <PageHeader
+        eyebrow="Security"
+        title="Authentication shield"
+        description="Protect your account with authenticator-based 2FA and a clearer security setup flow."
+        icon={<ShieldCheck className="h-6 w-6" />}
+      />
 
-      <div className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-8 backdrop-blur-sm">
+      <div className="rounded-3xl border border-zinc-800 bg-zinc-950/70 p-5 shadow-2xl shadow-black/20 backdrop-blur-sm md:p-8">
         <div className="flex items-start justify-between mb-8">
           <div className="flex gap-4">
-            <div className="h-12 w-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 border border-indigo-500/20">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-blue-500/20 bg-blue-500/10 text-blue-300">
               <Smartphone size={24} />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">Two-Factor Authentication</h3>
+              <h3 className="text-lg font-semibold text-white">Two-Factor Authentication</h3>
               <p className="text-sm text-zinc-500">Add an extra layer of security to your account.</p>
             </div>
           </div>
           {step === "completed" && (
-            <span className="px-3 py-1 bg-emerald-500/10 text-emerald-500 text-xs font-bold rounded-full border border-emerald-500/20">
+            <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-300">
               Active
             </span>
           )}
@@ -59,7 +62,7 @@ export default function SecurityPage() {
           <button 
             onClick={handleStartSetup}
             disabled={loading}
-            className="w-full py-4 bg-white text-black rounded-2xl font-bold hover:bg-zinc-200 transition-all flex items-center justify-center gap-2"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white py-4 font-bold text-black transition-all hover:bg-blue-100"
           >
             {loading ? <Loader2 className="animate-spin" /> : "Enable 2FA"}
           </button>
@@ -67,7 +70,7 @@ export default function SecurityPage() {
 
         {step === "scanning" && (
           <div className="space-y-6 text-center">
-            <div className="bg-white p-4 rounded-2xl inline-block mx-auto">
+            <div className="mx-auto inline-block rounded-3xl bg-white p-4 shadow-xl shadow-black/30">
               <Image src={qrCode} alt="QR Code" width={200} height={200} />
             </div>
             <p className="text-sm text-zinc-400 px-8">
@@ -79,12 +82,12 @@ export default function SecurityPage() {
               value={verificationCode}
               onChange={(e) => setVerificationCode(e.target.value)}
               placeholder="000000"
-              className="w-full bg-black border border-zinc-800 rounded-2xl p-4 text-center text-2xl font-mono tracking-widest outline-none focus:border-indigo-500 transition-all"
+              className="w-full rounded-2xl border border-zinc-800 bg-black p-4 text-center font-mono text-2xl tracking-widest outline-none transition-all focus:border-blue-500"
             />
             <button 
               onClick={handleVerifyActivation}
               disabled={loading || verificationCode.length !== 6}
-              className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold hover:bg-indigo-500 transition-all"
+              className="w-full rounded-2xl bg-blue-600 py-4 font-bold text-white transition-all hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
               Confirm Activation
             </button>

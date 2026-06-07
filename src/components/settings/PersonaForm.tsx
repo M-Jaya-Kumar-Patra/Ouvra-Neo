@@ -23,7 +23,7 @@ export function PersonaForm({ initialData }: { initialData: any }) {
   }
 
   return (
-    <Card className="bg-zinc-900/50 border-zinc-800 rounded-[2.5rem] overflow-hidden">
+    <Card className="overflow-hidden rounded-3xl border-zinc-800 bg-zinc-950/70 shadow-xl shadow-black/10">
       <CardHeader className="border-b border-zinc-800/50 p-4 md:p-8">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-blue-500/10 rounded-lg">
@@ -53,7 +53,7 @@ export function PersonaForm({ initialData }: { initialData: any }) {
             <select
               name="occupation"
               defaultValue={initialData?.occupation || "Student"}
-              className="w-full mt-2 md:mt-3 bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none cursor-pointer"
+              className="mt-2 w-full cursor-pointer appearance-none rounded-2xl border border-zinc-800 bg-black/30 p-4 text-white outline-none transition-all focus:ring-2 focus:ring-blue-500/50 md:mt-3"
             >
               <option value="Student">Student</option>
               <option value="Professional">Salaried Professional</option>
@@ -75,7 +75,7 @@ export function PersonaForm({ initialData }: { initialData: any }) {
                 type="number"
                 defaultValue={initialData?.monthlyBudget || 0}
                 placeholder="0.00"
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-4 pl-8 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                className="w-full rounded-2xl border border-zinc-800 bg-black/30 p-4 pl-8 text-white outline-none transition-all focus:ring-2 focus:ring-blue-500/50"
               />
             </div>
           </div>
@@ -89,7 +89,7 @@ export function PersonaForm({ initialData }: { initialData: any }) {
             <select
               name="language"
               defaultValue={initialData?.language || "English"}
-              className="w-full  mt-2 md:mt-3 bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all appearance-none cursor-pointer"
+              className="mt-2 w-full cursor-pointer appearance-none rounded-2xl border border-zinc-800 bg-black/30 p-4 text-white outline-none transition-all focus:ring-2 focus:ring-blue-500/50 md:mt-3"
             >
               <option value="English">English</option>
               <option value="Hindi">Hindi (हिन्दी)</option>
@@ -111,7 +111,7 @@ export function PersonaForm({ initialData }: { initialData: any }) {
               type="text"
               defaultValue={initialData?.financialGoal || ""}
               placeholder="e.g., Save for a new MacBook"
-              className="w-full  mt-2 md:mt-3 bg-zinc-950 border border-zinc-800 rounded-2xl p-4 text-white outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+              className="mt-2 w-full rounded-2xl border border-zinc-800 bg-black/30 p-4 text-white outline-none transition-all focus:ring-2 focus:ring-blue-500/50 md:mt-3"
             />
           </div>
 

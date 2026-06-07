@@ -48,14 +48,35 @@ export default function LoginClient() {
 };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#09090b] px-4 relative overflow-hidden">
-      {/* Dynamic Background Glows */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[25%] -left-[10%] w-[50%] h-[50%] bg-blue-500/10 blur-[120px] rounded-full" />
-        <div className="absolute -bottom-[25%] -right-[10%] w-[50%] h-[50%] bg-blue-600/5 blur-[120px] rounded-full" />
-      </div>
+    <div className="relative grid min-h-screen overflow-hidden bg-[#07080b] px-4 py-6 text-white lg:grid-cols-[1fr_480px] lg:p-6">
+      <section className="hidden rounded-[2rem] border border-zinc-800 bg-zinc-950/70 p-10 lg:flex lg:flex-col lg:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="relative h-12 w-12 overflow-hidden rounded-2xl border border-zinc-800 bg-black">
+            <Image src="/logo.png" alt="Ouvra Neo Logo" fill className="object-contain p-1" priority />
+          </div>
+          <div>
+            <p className="text-xl font-black tracking-tight">Ouvra Neo</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-300">Finance OS</p>
+          </div>
+        </div>
+        <div className="max-w-xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-300">AI personal finance</p>
+          <h1 className="mt-4 text-5xl font-semibold tracking-tight">Control money movement with intelligence.</h1>
+          <p className="mt-5 text-base leading-7 text-zinc-400">
+            Track expenses, settle splits, automate savings, and get sharper financial signals from one secure dashboard.
+          </p>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {["AI insights", "Split bills", "Smart vaults"].map((item) => (
+            <div key={item} className="rounded-2xl border border-zinc-800 bg-black/30 p-4 text-sm font-semibold text-zinc-300">
+              {item}
+            </div>
+          ))}
+        </div>
+      </section>
 
-      <Card className="w-full max-w-md bg-zinc-900/50 border-zinc-800 backdrop-blur-xl relative z-10 shadow-2xl rounded-[2.5rem]">
+      <section className="flex items-center justify-center lg:px-8">
+      <Card className="relative z-10 w-full max-w-md rounded-3xl border-zinc-800 bg-zinc-950/80 shadow-2xl shadow-black/30 backdrop-blur-xl">
         <CardHeader className="space-y-2 text-center pt-10">
           
           {/* --- LOGO SECTION START --- */}
@@ -78,7 +99,7 @@ export default function LoginClient() {
           </div>
           {/* --- LOGO SECTION END --- */}
 
-          <CardTitle className="text-3xl font-black tracking-tighter italic bg-gradient-to-r from-white to-zinc-500 bg-clip-text text-transparent px-1">
+          <CardTitle className="bg-gradient-to-r from-white to-zinc-500 bg-clip-text px-1 text-3xl font-black tracking-tight text-transparent">
             OUVRA NEO
           </CardTitle>
           <CardDescription className="text-zinc-400 text-sm">
@@ -127,7 +148,7 @@ export default function LoginClient() {
               <span className="w-full border-t border-zinc-800" />
             </div>
             <div className="relative flex justify-center text-[10px] uppercase font-black tracking-[0.2em]">
-              <span className="bg-[#121214] px-4 text-zinc-500">Secure Protocol</span>
+              <span className="bg-zinc-950 px-4 text-zinc-500">Secure Protocol</span>
             </div>
           </div>
 
@@ -155,6 +176,7 @@ export default function LoginClient() {
           </p>
         </CardFooter>
       </Card>
+      </section>
     </div>
   );
 }
